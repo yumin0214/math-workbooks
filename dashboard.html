@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SpeedCalc</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<div class="mobile-topbar" id="mobile-topbar">
+  <a class="mobile-logo" href="/">
+    <div class="mobile-logo-icon">⚡</div>
+    <span class="mobile-logo-text">SpeedCalc</span>
+  </a>
+  <span class="mobile-streak" id="mobile-streak-text">🔥 1 day</span>
+</div>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <a class="sb-logo" href="/">
+    <div class="sb-logo-icon">⚡</div>
+    <span class="sb-logo-text">Speed<span>Calc</span></span>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section-label">Main</div>
+    <button class="sb-item active" id="nav-home" onclick="showPage('home')"><span class="sb-item-icon">🏠</span> Dashboard</button>
+    <button class="sb-item" id="nav-report" onclick="showPage('report')"><span class="sb-item-icon">📊</span> Speed Report</button>
+    <button class="sb-item" id="nav-mc-report" onclick="showPage('mc-report')"><span class="sb-item-icon">🔍</span> Mistakes Report</button>
+    <button class="sb-item" id="nav-history" onclick="showPage('history')"><span class="sb-item-icon">📅</span> Session History</button>
+    <div class="sb-divider"></div>
+    <div class="sb-section-label">Practice</div>
+    <a class="sb-item" href="/speed-booster"><span class="sb-item-icon">⚡</span> Speed Booster</a>
+    <a class="sb-item" href="/mistake-correction"><span class="sb-item-icon">🔍</span> Mistake Correction</a>
+  </nav>
+  <div class="sb-user">
+    <div class="sb-user-card">
+      <div class="sb-avatar" id="sb-avatar">S</div>
+      <div>
+        <div class="sb-user-name" id="sb-name">Student</div>
+        <div class="sb-user-grade" id="sb-grade">Grade 6</div>
+      </div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">← Logout</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ════════ HOME PAGE ════════ -->
+  <div class="page active" id="page-home">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="home-greeting">Good morning! 👋</div>
+        <div class="topbar-sub" id="home-date">Ready to practise today?</div>
+      </div>
+      <div class="streak-pill"><span>🔥</span><span id="streak-text">1 day streak</span></div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="stat-card-icon">🏆</div>
+        <div class="stat-card-val" id="sc-best">–</div>
+        <div class="stat-card-label">Best Speed (U5)</div>
+        <div class="stat-card-change" id="sc-best-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">🔍</div>
+        <div class="stat-card-val" id="sc-mc-best">–</div>
+        <div class="stat-card-label">Best MC Score</div>
+        <div class="stat-card-change" id="sc-mc-best-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">📅</div>
+        <div class="stat-card-val" id="sc-sessions">0</div>
+        <div class="stat-card-label">Total Sessions</div>
+        <div class="stat-card-change" id="sc-sessions-sub" style="color:var(--blue)"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">🔥</div>
+        <div class="stat-card-val" id="sc-streak">0</div>
+        <div class="stat-card-label">Day Streak</div>
+        <div class="stat-card-change" id="sc-streak-sub" style="color:var(--amber)"></div>
+      </div>
+    </div>
+
+    <!-- WORKBOOK BUTTONS -->
+    <a class="open-wb-btn" href="/speed-booster">⚡ Open Calculation Speed Booster Workbook</a>
+    <a class="open-wb-btn mc" href="/mistake-correction">🔍 Open Mistake Correction Workbook</a>
+
+    <!-- WORKBOOK TABS -->
+    <div class="wb-tabs">
+      <button class="wb-tab active" onclick="switchWbTab('speed',this)">⚡ Speed Booster Progress</button>
+      <button class="wb-tab" onclick="switchWbTab('mc',this)">🔍 Mistake Correction Progress</button>
+    </div>
+
+    <div class="wb-panel active" id="wb-panel-speed">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon" style="background:#eff6ff">📊</div>Speed Booster — Best Scores</div>
+          <div id="home-progress"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon" style="background:#f0fdf4">📅</div>Recent Speed Sessions</div>
+          <div id="home-recent"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wb-panel" id="wb-panel-mc">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon" style="background:#f5f3ff">🔍</div>Mistake Correction — Best Scores</div>
+          <div id="home-mc-progress"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon" style="background:#f5f3ff">🧠</div>Weakness by Question Type</div>
+          <div id="home-mc-types"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon" style="background:#f5f3ff">🧠</div>
+        Quick AI Insight
+        <span class="ai-tag">AI</span>
+        <span class="card-title-meta">Based on your last session</span>
+      </div>
+      <div id="home-quick-insight">
+        <div class="empty-state" style="padding:20px">
+          <div class="empty-state-emoji" style="font-size:28px">🎯</div>
+          <div class="empty-state-title" style="font-size:13px">Complete a session first!</div>
+          <div class="empty-state-sub" style="font-size:12px">Open either workbook, complete exercises, and your AI insight will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SPEED BOOSTER REPORT ════════ -->
+  <div class="page" id="page-report">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">⚡ Speed Booster Report 📊</div>
+        <div class="topbar-sub">Your calculation speed progress, trends, and AI analysis.</div>
+      </div>
+      <button class="refresh-btn" id="refresh-ai-btn" onclick="generateAIReport()">🧠 Refresh AI Analysis</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon" style="background:#eff6ff">🏆</div>Unit Best Scores</div>
+      <div class="unit-detail-grid" id="report-unit-cards"></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#f0fdf4">📈</div>Score Trend — Last 8 Sessions</div>
+        <div id="trend-wrap">
+          <div class="empty-state" style="padding:20px" id="trend-empty">
+            <div class="empty-state-emoji" style="font-size:28px">📈</div>
+            <div class="empty-state-title" style="font-size:13px">No sessions yet</div>
+            <div class="empty-state-sub" style="font-size:12px">Complete drills to see your trend.</div>
+          </div>
+          <div id="trend-chart-area" style="display:none">
+            <div class="chart-wrap" id="trend-chart"></div>
+            <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:4px" id="trend-labels"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#fef3c7">💪</div>Strengths &amp; Weaknesses</div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">💪 Strong Topics</div>
+          <div class="chip-row" id="strength-chips"><span class="chip-muted">Complete sessions to see data</span></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;color:var(--red);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">⚠️ Needs Work</div>
+          <div class="chip-row" id="weakness-chips"><span class="chip-muted">Complete sessions to see data</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="three-col" id="time-stats-row">
+      <div class="card" style="margin-bottom:0;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">📆</div>
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--text)" id="stat-total-sessions">0</div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Speed Sessions</div>
+      </div>
+      <div class="card" style="margin-bottom:0;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">🔥</div>
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--amber)" id="stat-streak">0</div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Day Streak</div>
+      </div>
+      <div class="card" style="margin-bottom:0;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">🎯</div>
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--green)" id="stat-best-pct">–</div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Best Unit % Score</div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon" style="background:#f5f3ff">🧠</div>
+        AI Performance Analysis
+        <span class="ai-tag">AI-Powered</span>
+      </div>
+      <div id="ai-report-content">
+        <div class="empty-state">
+          <div class="empty-state-emoji">🧠</div>
+          <div class="empty-state-title">No data to analyse yet</div>
+          <div class="empty-state-sub">Complete at least one Speed Booster session and your personalised AI report will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ MISTAKE CORRECTION REPORT ════════ -->
+  <div class="page" id="page-mc-report">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🔍 Mistake Correction Report 📊</div>
+        <div class="topbar-sub">Which question types trip you up most — and what to focus on next.</div>
+      </div>
+      <button class="refresh-btn" id="refresh-mc-ai-btn" onclick="generateMCAIReport()">🧠 Refresh AI Analysis</button>
+    </div>
+
+    <!-- MC UNIT BEST SCORES -->
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon" style="background:#f5f3ff">🏆</div>MC Unit Best Scores</div>
+      <div class="unit-detail-grid" id="mc-unit-cards"></div>
+    </div>
+
+    <!-- QUESTION TYPE BREAKDOWN -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#fef3c7">🎯</div>Performance by Question Type</div>
+        <div id="mc-type-breakdown">
+          <div class="empty-state" style="padding:20px">
+            <div class="empty-state-emoji" style="font-size:28px">🎯</div>
+            <div class="empty-state-title" style="font-size:13px">No data yet</div>
+            <div class="empty-state-sub" style="font-size:12px">Submit a unit in the MC workbook to see your type breakdown.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#f5f3ff">🔍</div>What to Practise Next</div>
+        <div id="mc-recommendations">
+          <div class="empty-state" style="padding:20px">
+            <div class="empty-state-emoji" style="font-size:28px">💡</div>
+            <div class="empty-state-title" style="font-size:13px">Complete some exercises first</div>
+            <div class="empty-state-sub" style="font-size:12px">Your personalised practice recommendations will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MC TREND CHART -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#f0fdf4">📈</div>MC Score Trend — Last 8 Sessions</div>
+        <div id="mc-trend-wrap">
+          <div class="empty-state" style="padding:20px" id="mc-trend-empty">
+            <div class="empty-state-emoji" style="font-size:28px">📈</div>
+            <div class="empty-state-title" style="font-size:13px">No sessions yet</div>
+            <div class="empty-state-sub" style="font-size:12px">Submit units to see your trend.</div>
+          </div>
+          <div id="mc-trend-chart-area" style="display:none">
+            <div class="chart-wrap" id="mc-trend-chart"></div>
+            <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:4px" id="mc-trend-labels"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#fef3c7">💪</div>MC Strengths &amp; Weaknesses</div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">💪 Strong Topics</div>
+          <div class="chip-row" id="mc-strength-chips"><span class="chip-muted">Complete sessions to see data</span></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;color:var(--red);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">⚠️ Needs Work</div>
+          <div class="chip-row" id="mc-weakness-chips"><span class="chip-muted">Complete sessions to see data</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MC AI REPORT -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon" style="background:#f5f3ff">🧠</div>
+        AI Mistake Pattern Analysis
+        <span class="ai-tag">AI-Powered</span>
+      </div>
+      <div id="mc-ai-report-content">
+        <div class="empty-state">
+          <div class="empty-state-emoji">🔍</div>
+          <div class="empty-state-title">No data to analyse yet</div>
+          <div class="empty-state-sub">Complete at least one Mistake Correction unit. Your personalised error pattern report will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ SESSION HISTORY ════════ -->
+  <div class="page" id="page-history">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Session History 📅</div>
+        <div class="topbar-sub">Every session from both workbooks.</div>
+      </div>
+    </div>
+
+    <div class="wb-tabs" style="margin-bottom:16px">
+      <button class="wb-tab active" onclick="switchHistTab('speed',this)">⚡ Speed Booster Sessions</button>
+      <button class="wb-tab" onclick="switchHistTab('mc',this)">🔍 Mistake Correction Sessions</button>
+    </div>
+
+    <div id="hist-panel-speed">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#eff6ff">📋</div>Speed Booster Sessions<span class="card-title-meta" id="history-count"></span></div>
+        <div id="history-content">
+          <div class="empty-state"><div class="empty-state-emoji">📅</div><div class="empty-state-title">No sessions yet</div><div class="empty-state-sub">Complete Speed Booster drills and check your answers.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="hist-panel-mc" style="display:none">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon" style="background:#f5f3ff">📋</div>Mistake Correction Sessions<span class="card-title-meta" id="mc-history-count"></span></div>
+        <div id="mc-history-content">
+          <div class="empty-state"><div class="empty-state-emoji">📅</div><div class="empty-state-title">No sessions yet</div><div class="empty-state-sub">Submit a unit in the Mistake Correction workbook.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mnav-item active" id="mnav-home" onclick="showPage('home')"><span class="mnav-item-icon">🏠</span>Home</button>
+    <button class="mnav-item" id="mnav-report" onclick="showPage('report')"><span class="mnav-item-icon">⚡</span>Speed</button>
+    <button class="mnav-item" id="mnav-mc-report" onclick="showPage('mc-report')"><span class="mnav-item-icon">🔍</span>Mistakes</button>
+    <button class="mnav-item" id="mnav-history" onclick="showPage('history')"><span class="mnav-item-icon">📅</span>History</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

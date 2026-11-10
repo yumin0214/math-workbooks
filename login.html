@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — SpeedCalc</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+<div class="login-left">
+  <div class="ll-logo">
+    <div class="ll-logo-icon">⚡</div>
+    <span class="ll-logo-text">SpeedCalc</span>
+  </div>
+  <h1 class="ll-headline">Your daily maths<br>speed training starts here.</h1>
+  <p class="ll-sub">Sign in to access your personalised workbook, track your progress, and see AI-powered reports on how you're improving.</p>
+  <div class="ll-features">
+    <div class="ll-feat"><div class="ll-feat-icon">🔄</div><span class="ll-feat-text">Fresh questions generated every session</span></div>
+    <div class="ll-feat"><div class="ll-feat-icon">📊</div><span class="ll-feat-text">Personal progress dashboard & best scores</span></div>
+    <div class="ll-feat"><div class="ll-feat-icon">🧠</div><span class="ll-feat-text">AI observations on your mistake patterns</span></div>
+    <div class="ll-feat"><div class="ll-feat-icon">🔥</div><span class="ll-feat-text">Daily streak tracking to keep you consistent</span></div>
+  </div>
+</div>
+
+<div class="login-right">
+  <div class="auth-card">
+    <a class="auth-back" href="/">← Back to home</a>
+    <h2 class="auth-heading" id="auth-heading">Welcome back!</h2>
+    <p class="auth-sub" id="auth-sub">Login to continue your practice streak.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="login-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="login-password" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">⚡ Start Practising</button>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" id="su-fname" placeholder="Riya">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" id="su-lname" placeholder="Shah">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Grade</label>
+          <select class="form-select" id="su-grade">
+            <option value="">Select</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input class="form-input" type="number" id="su-age" placeholder="12" min="10" max="18">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">School Name</label>
+        <input class="form-input" type="text" id="su-school" placeholder="DPS Ahmedabad">
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input class="form-input" type="text" id="su-city" placeholder="Surat">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="su-email" placeholder="your@email.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="su-password" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm</label>
+          <input class="form-input" type="password" id="su-confirm" placeholder="••••••••">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="doSignup()">🚀 Create My Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

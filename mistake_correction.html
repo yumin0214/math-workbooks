@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mistake Correction Workbook — SpeedCalc</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mistake_correction.css') }}">
+</head>
+<body>
+
+<!-- ═══════════ AUTH SCREEN ═══════════ -->
+<div class="screen active" id="screen-auth">
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-emoji">🔍</div>
+      <h1>Mistake Correction<br>Workbook</h1>
+      <p>Spot errors · Fix steps · Build accuracy · Grades 6–10</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div id="form-login">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doLogin()">🔍 Start Practising</button>
+    </div>
+    <div id="form-signup" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" id="su-fname" placeholder="Riya"></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" id="su-lname" placeholder="Shah"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Grade</label><select class="form-select" id="su-grade"><option value="">Select</option><option value="6">Grade 6</option><option value="7">Grade 7</option><option value="8">Grade 8</option><option value="9">Grade 9</option><option value="10">Grade 10</option></select></div>
+        <div class="form-group"><label class="form-label">Age</label><input class="form-input" type="number" id="su-age" placeholder="12" min="10" max="18"></div>
+      </div>
+      <div class="form-group"><label class="form-label">School Name</label><input class="form-input" type="text" id="su-school" placeholder="DPS Ahmedabad"></div>
+      <div class="form-group"><label class="form-label">City</label><input class="form-input" type="text" id="su-city" placeholder="Surat"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="su-email" placeholder="your@email.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="su-password" placeholder="••••••••"></div>
+        <div class="form-group"><label class="form-label">Confirm</label><input class="form-input" type="password" id="su-confirm" placeholder="••••••••"></div>
+      </div>
+      <button class="btn-primary" onclick="doSignup()">🚀 Create Account</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ WORKBOOK SCREEN ═══════════ -->
+<div class="screen" id="screen-workbook">
+<div class="wb-wrapper">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="top-bar-avatar" id="tb-avatar">R</div>
+      <div>
+        <div class="top-bar-name" id="tb-name">Student</div>
+        <div class="top-bar-grade" id="tb-grade">Grade 6 · Surat</div>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <span class="streak-badge" id="tb-streak">🔥 0 day streak</span>
+      <a href="/dashboard" style="background:var(--mc-bg);border:1.5px solid var(--mc-border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--mc-muted);text-decoration:none;transition:all .15s" onmouseover="this.style.borderColor='#7c3aed';this.style.color='#7c3aed'" onmouseout="this.style.borderColor='';this.style.color=''">← Dashboard</a>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Cover -->
+  <div class="wb-cover">
+    <div class="wb-cover-emoji">🔍</div>
+    <h1>Mistake Correction<br>Workbook</h1>
+    <p class="tagline">Spot the error · Fix the steps · Master the concept</p>
+    <div class="badges">
+      <span class="wb-badge" id="cover-grade">Grade 6</span>
+      <span class="wb-badge">5 Units · 75 Exercises</span>
+      <span class="wb-badge">Auto-Checked</span>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-label">📊 My Best Scores by Unit</div>
+    <div id="progress-bars">
+      <div class="prog-row"><span class="prog-name">Unit 1 — Fractions</span><div class="prog-bar-outer"><div class="prog-bar-inner" id="pb1" style="width:0%;background:#1a56db"></div></div><span class="prog-score" id="ps1">0/15</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 2 — Integers</span><div class="prog-bar-outer"><div class="prog-bar-inner" id="pb2" style="width:0%;background:#059669"></div></div><span class="prog-score" id="ps2">0/15</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 3 — Algebra</span><div class="prog-bar-outer"><div class="prog-bar-inner" id="pb3" style="width:0%;background:#dc2626"></div></div><span class="prog-score" id="ps3">0/15</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 4 — % &amp; Decimals</span><div class="prog-bar-outer"><div class="prog-bar-inner" id="pb4" style="width:0%;background:#d97706"></div></div><span class="prog-score" id="ps4">0/15</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 5 — Grand Challenge</span><div class="prog-bar-outer"><div class="prog-bar-inner" id="pb5" style="width:0%;background:#7c3aed"></div></div><span class="prog-score" id="ps5">0/15</span></div>
+    </div>
+  </div>
+
+  <!-- Unit Nav -->
+  <div class="unit-nav">
+    <button class="unit-tab active" style="background:#1a56db;color:white" onclick="showUnit(0)">Unit 1</button>
+    <button class="unit-tab" onclick="showUnit(1)">Unit 2</button>
+    <button class="unit-tab" onclick="showUnit(2)">Unit 3</button>
+    <button class="unit-tab" onclick="showUnit(3)">Unit 4</button>
+    <button class="unit-tab" onclick="showUnit(4)">Unit 5</button>
+  </div>
+
+  <!-- ══════════════ UNIT 1: FRACTIONS ══════════════ -->
+  <div class="unit-page active" id="unit-0">
+    <div class="unit-header" style="background:linear-gradient(135deg,#1a56db,#2563eb)">
+      <div class="unit-label">Unit 1 of 5</div>
+      <h2>🔢 Fractions Mistakes</h2>
+      <div class="unit-sub">Simplifying · Adding · Subtracting · Multiplying · Dividing fractions</div>
+    </div>
+
+    <div class="section-label label-easy">🟢 Section A — Easy (Ex 1–5)</div>
+
+    <!-- Ex 1: Find the Mistake -->
+    <div class="ex-card" id="u1q1">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">1</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Simplifying 6/8 — which step is wrong?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Simplify 6/8</strong><br>
+        <span class="step-line">Step 1: Common factor of 6 and 8 = 2</span>
+        <span class="step-line">Step 2: 6 ÷ 2 = 3, &nbsp; 8 ÷ 2 = <strong>3</strong></span>
+        <span class="step-line">Step 3: Answer = 3/3 = 1</span>
+      </div>
+      <p style="font-size:12px;color:var(--mc-muted);margin-bottom:8px;font-weight:700">👆 Tap the step that contains the mistake:</p>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u1q1',0)"><span class="step-icon">1️⃣</span> Step 1: Common factor of 6 and 8 = 2</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q1',1)"><span class="step-icon">2️⃣</span> Step 2: 6 ÷ 2 = 3, &nbsp; 8 ÷ 2 = 3</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q1',2)"><span class="step-icon">3️⃣</span> Step 3: Answer = 3/3 = 1</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u1q1')">✅ Check Answer</button>
+      <div id="u1q1-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2 is wrong: 8 ÷ 2 = 4, not 3. So the answer is 3/4, not 1.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Always divide BOTH numerator and denominator by the same number. After dividing, multiply back to verify: if 8 ÷ 2 = 4, then 4 × 2 = 8 ✓</div></div>
+
+    <!-- Ex 2: True or False -->
+    <div class="ex-card" id="u1q2">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">2</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is 1/4 + 1/4 = 2/8 correct?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>1/4 + 1/4 = ?</strong><br>
+        <span class="step-line">Step 1: Same denominators, add both numerators AND denominators</span>
+        <span class="step-line">Step 2: 1 + 1 = 2 (top), 4 + 4 = 8 (bottom)</span>
+        <span class="step-line">Answer: <strong>2/8</strong></span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u1q2','true')">✅ True — Working is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u1q2','false')">❌ False — Working has an error</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u1q2')">✅ Check Answer</button>
+      <div id="u1q2-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. When denominators are the same, only add numerators, keep denominator unchanged. 1/4 + 1/4 = 2/4 = 1/2</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Same-denominator addition: only the tops change! 1/4 + 1/4 = "one quarter plus one quarter = two quarters" = 2/4. Never add the bottoms.</div></div>
+
+    <!-- Ex 3: Which One is Right -->
+    <div class="ex-card" id="u1q3">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">3</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Two students simplified 10/15 — who is correct?</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>HCF(10,15) = 5<br>10 ÷ 5 = 2<br>15 ÷ 5 = 3<br>Answer = <strong>2/3</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>HCF(10,15) = 5<br>10 ÷ 5 = 2<br>15 ÷ 5 = <strong>5</strong><br>Answer = <strong>2/5</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u1q3','A')"><input type="radio" name="u1q3">Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u1q3','B')"><input type="radio" name="u1q3">Solution B is correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u1q3')">✅ Check Answer</button>
+      <div id="u1q3-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A is correct. In Solution B: 15 ÷ 5 = 3, not 5. Quick check: 5 × 5 ≠ 15, but 3 × 5 = 15 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> After any division, multiply back to verify. If you claim 15 ÷ 5 = 5, then 5 × 5 must equal 15 — it doesn't! Always check.</div></div>
+
+    <!-- Ex 4: Fill the Missing Step -->
+    <div class="ex-card" id="u1q4">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">4</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Complete: 1/3 + 1/6</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line">Step 1: LCM(3, 6) = 6</span>
+        <span class="step-line fill-line">Step 2: Convert 1/3 → <input class="fill-input" id="u1q4-b1" placeholder="?/6"> &nbsp;(multiply top and bottom by 2)</span>
+        <span class="step-line fill-line">Step 3: Add: <input class="fill-input" id="u1q4-b2" placeholder="?/6"> + 1/6 = <input class="fill-input" id="u1q4-b3" placeholder="answer"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q4',['u1q4-b1','u1q4-b2','u1q4-b3'])">✅ Check Answer</button>
+      <div id="u1q4-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2: 2/6 · Step 3: 2/6 + 1/6 = 3/6 = 1/2</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> To add fractions with different denominators, find the LCM first. Then convert each fraction so both have that denominator. Only then add the numerators.</div></div>
+
+    <!-- Ex 5: Fix & Solve -->
+    <div class="ex-card" id="u1q5">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">5</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix the wrong multiplication: 2/3 × 3/4</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>2/3 × 3/4 = ?</strong><br>
+        <span class="step-line">Student wrote: (2+3) / (3+4) = 5/7 ❌</span>
+      </div>
+      <p style="font-size:12px;color:var(--mc-muted);margin-bottom:10px;font-weight:700">Write the correct working step by step:</p>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct method: Multiply tops: 2 × 3 = <input class="fill-input" id="u1q5-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Multiply bottoms: 3 × 4 = <input class="fill-input" id="u1q5-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Answer = <input class="fill-input" id="u1q5-b3" placeholder="?"> (simplify if needed)</span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q5',['u1q5-b1','u1q5-b2','u1q5-b3'])">✅ Check Answer</button>
+      <div id="u1q5-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Multiply tops: 2×3=6. Multiply bottoms: 3×4=12. Answer: 6/12 = 1/2. Never add numerators/denominators when multiplying!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When multiplying fractions, multiply the numerators together and the denominators together: (a/b) × (c/d) = (a×c)/(b×d). Always simplify your final fraction to lowest terms.</div></div>
+
+    <div class="section-label label-med">🟡 Section B — Medium (Ex 6–10)</div>
+
+    <!-- Ex 6: Find the Mistake -->
+    <div class="ex-card" id="u1q6">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">6</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Subtracting fractions: 3/4 − 1/3</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>3/4 − 1/3 = ?</strong><br>
+        <span class="step-line">Step 1: LCM(4,3) = 12</span>
+        <span class="step-line">Step 2: 3/4 = 9/12 &nbsp; (×3 top and bottom)</span>
+        <span class="step-line">Step 3: 1/3 = <strong>3/12</strong> &nbsp; (multiplied top and bottom by 3)</span>
+        <span class="step-line">Step 4: 9/12 − 3/12 = 6/12 = 1/2</span>
+      </div>
+      <p style="font-size:12px;color:var(--mc-muted);margin-bottom:8px;font-weight:700">👆 Which step is wrong?</p>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u1q6',0)"><span class="step-icon">1️⃣</span> Step 1: LCM(4,3) = 12</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q6',1)"><span class="step-icon">2️⃣</span> Step 2: 3/4 = 9/12</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q6',2)"><span class="step-icon">3️⃣</span> Step 3: 1/3 = 3/12</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q6',3)"><span class="step-icon">4️⃣</span> Step 4: 9/12 − 3/12 = 6/12</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u1q6')">✅ Check Answer</button>
+      <div id="u1q6-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 3 is wrong. To convert 1/3 to 12ths, multiply by 4 (not 3): 1×4=4, 3×4=12. So 1/3 = 4/12. The correct answer is 9/12 − 4/12 = 5/12.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When converting to a common denominator, ask "what did I multiply the bottom by?" then multiply the top by the same number. 3→12 means ×4, so top also ×4.</div></div>
+
+    <!-- Ex 7: True or False -->
+    <div class="ex-card" id="u1q7">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">7</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is this division correct? 2/3 ÷ 4/5 = 8/15</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>2/3 ÷ 4/5 = ?</strong><br>
+        <span class="step-line">Student method: multiply straight across</span>
+        <span class="step-line">2/3 ÷ 4/5 = (2×4)/(3×5) = 8/15</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u1q7','true')">✅ True — Answer is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u1q7','false')">❌ False — Method is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u1q7')">✅ Check Answer</button>
+      <div id="u1q7-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. Division requires flipping the second fraction (KCF: Keep, Change, Flip). 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> KCF for fraction division — Keep the first, Change ÷ to ×, Flip the second. 2/3 ÷ 4/5 → 2/3 × 5/4 = 10/12 = 5/6.</div></div>
+
+    <!-- Ex 8: Fill the Missing Step -->
+    <div class="ex-card" id="u1q8">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">8</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Division: 5/6 ÷ 5/3</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Division: 5/6 ÷ 5/3 = ?</strong><br>
+        <span class="step-line">Student wrote: 5/6 ÷ 5/3 = 5/6 × 5/3 = 25/18 ❌</span>
+        <span class="step-line" style="color:var(--mc-muted);font-size:12px">Error: Forgot to take the reciprocal of the divisor!</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-amber)">
+        <span class="step-line fill-line">Step 1: Reciprocal of 5/3 = <input class="fill-input" id="u1q8-b1" placeholder="reciprocal of 5/3"></span>
+        <span class="step-line fill-line">Step 2: 5/6 × 3/5 = <input class="fill-input" id="u1q8-b2" placeholder="simplified answer"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q8',['u1q8-b1','u1q8-b2'])">✅ Check Answer</button>
+      <div id="u1q8-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Flip 5/3 → 3/5. Then 5/6 × 3/5 = 15/30 = 1/2</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> To divide fractions, remember 'Keep, Change, Flip': keep the first fraction, change division to multiplication, and flip the second fraction (find its reciprocal).</div></div>
+
+    <!-- Ex 9: Which One is Right -->
+    <div class="ex-card" id="u1q9">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">9</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Mixed number addition: 2½ + 1¾</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>2½ + 1¾<br>= 5/2 + 7/4<br>LCM=4: 10/4 + 7/4<br>= <strong>17/4 = 4¼</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>2½ + 1¾<br>Add whole: 2+1=3<br>Add fractions: ½+¾=5/4<br>= 3 + 5/4 = <strong>4¼</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u1q9','A')"><input type="radio" name="u1q9">Only Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u1q9','B')"><input type="radio" name="u1q9">Only Solution B is correct</label>
+        <label class="radio-btn" data-val="C" onclick="selectRadio(this,'u1q9','C')"><input type="radio" name="u1q9">Both are correct (different valid methods)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u1q9')">✅ Check Answer</button>
+      <div id="u1q9-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Both are correct! Solution A converts to improper fractions first. Solution B adds whole numbers and fractions separately. Both give 4¼.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> There can be multiple correct methods for the same problem. Both improper-fraction method and the separate whole+fraction method work for mixed number addition.</div></div>
+
+    <!-- Ex 10: Fix & Solve -->
+    <div class="ex-card" id="u1q10">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#1a56db">10</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix this comparison: Is 3/5 &gt; 2/3?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Compare 3/5 and 2/3</strong><br>
+        <span class="step-line">Wrong working: 3 &gt; 2 so 3/5 &gt; 2/3 ❌</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Step 1: LCM(5,3) = <input class="fill-input" id="u1q10-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: 3/5 = <input class="fill-input" id="u1q10-b2" placeholder="?/15"></span>
+        <span class="step-line fill-line">Step 3: 2/3 = <input class="fill-input" id="u1q10-b3" placeholder="?/15"></span>
+        <span class="step-line fill-line">Step 4: Which is bigger? <input class="fill-input" id="u1q10-b4" placeholder="3/5 or 2/3"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q10',['u1q10-b1','u1q10-b2','u1q10-b3','u1q10-b4'])">✅ Check Answer</button>
+      <div id="u1q10-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">LCM=15. 3/5=9/15. 2/3=10/15. 10 &gt; 9, so 2/3 &gt; 3/5. Never compare fractions by just looking at numerators — convert to same denominator first!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> You can NEVER compare fractions by just their numerators if the denominators are different. Always convert to a common denominator first.</div></div>
+
+    <div class="section-label label-hard">🔴 Section C — Hard (Ex 11–15)</div>
+
+    <!-- Ex 11: Find the Mistake -->
+    <div class="ex-card" id="u1q11">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">11</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Complex subtraction: 5/6 − 2/9</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>5/6 − 2/9 = ?</strong><br>
+        <span class="step-line">Step 1: LCM(6,9) = 18</span>
+        <span class="step-line">Step 2: 5/6 = 15/18 &nbsp; (×3 top and bottom)</span>
+        <span class="step-line">Step 3: 2/9 = <strong>6/18</strong> &nbsp; (multiplied top by 3, bottom by 2)</span>
+        <span class="step-line">Step 4: 15/18 − 6/18 = 9/18 = 1/2</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u1q11',0)"><span class="step-icon">1️⃣</span> Step 1: LCM(6,9) = 18</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q11',1)"><span class="step-icon">2️⃣</span> Step 2: 5/6 = 15/18</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q11',2)"><span class="step-icon">3️⃣</span> Step 3: 2/9 = 6/18</button>
+        <button class="step-btn" onclick="selectStep(this,'u1q11',3)"><span class="step-icon">4️⃣</span> Step 4: 15/18 − 6/18 = 9/18 = 1/2</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u1q11')">✅ Check Answer</button>
+      <div id="u1q11-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">In Step 3: To convert 2/9 to a denominator of 18, multiply numerator and denominator by 2. 2 × 2 = 4, so 2/9 = 4/18, not 6/18. Correct final calculation: 15/18 − 4/18 = 11/18.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When converting fractions to a common denominator, divide the common denominator by the original denominator to find the multiplier, then multiply BOTH numerator and denominator by that multiplier.</div></div>
+
+    <!-- Ex 12: True or False -->
+    <div class="ex-card" id="u1q12">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">12</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is the reciprocal of 2½ equal to 2/5?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Statement: Is the reciprocal of 2½ equal to 2/5?</strong><br>
+        <span class="step-line">Calculation: 2½ = 5/2</span>
+        <span class="step-line">Reciprocal of 5/2 is <strong>2/5</strong></span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u1q12','true')">True — 2/5 is the reciprocal</button>
+        <button class="tf-btn" onclick="selectTF(this,'u1q12','false')">False — 2/5 is not the reciprocal</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u1q12')">✅ Check Answer</button>
+      <div id="u1q12-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Convert 2½ to an improper fraction: 2½ = (2 × 2 + 1)/2 = 5/2. The reciprocal of a/b is b/a, so the reciprocal of 5/2 is 2/5. The statement is TRUE.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> To find the reciprocal of a mixed number, first convert to an improper fraction, then flip. 2½ = 5/2, so reciprocal = 2/5.</div></div>
+
+    <!-- Ex 13: Which One is Right -->
+    <div class="ex-card" id="u1q13">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">13</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Dividing a whole number: 4 ÷ 2/3</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>4 ÷ 2/3<br>= 4 × 2/3<br>= 8/3<br>= <strong>2⅔</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>4 ÷ 2/3<br>= 4 × 3/2<br>= 12/2<br>= <strong>6</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u1q13','A')"><input type="radio" name="u1q13">Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u1q13','B')"><input type="radio" name="u1q13">Solution B is correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u1q13')">✅ Check Answer</button>
+      <div id="u1q13-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution B is correct. Dividing by 2/3 means multiplying by its reciprocal 3/2. Solution A forgot to flip — it multiplied by 2/3 instead of 3/2.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> "Divide by 2/3" = "multiply by 3/2" (the reciprocal). Think of it as: how many 2/3s fit in 4? Answer: 6 of them do! Makes intuitive sense.</div></div>
+
+    <!-- Ex 14: Fill the Missing Step -->
+    <div class="ex-card" id="u1q14">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">14</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Simplify: (3/4 × 8/9) ÷ 2/3</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: 3/4 × 8/9 = <input class="fill-input" id="u1q14-b1" placeholder="? (simplify)"></span>
+        <span class="step-line fill-line">Step 2: Result ÷ 2/3 = <input class="fill-input" id="u1q14-b2" placeholder="Step 1"> × <input class="fill-input" id="u1q14-b3" placeholder="flip of 2/3"></span>
+        <span class="step-line fill-line">Step 3: Final = <input class="fill-input" id="u1q14-b4" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q14',['u1q14-b1','u1q14-b2','u1q14-b3','u1q14-b4'])">✅ Check Answer</button>
+      <div id="u1q14-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1: 3×8=24, 4×9=36 → 24/36 = 2/3. Step 2: 2/3 × 3/2. Step 3: 6/6 = 1</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Work left to right with BODMAS. Multiplication first, then division. Simplify at every step to keep numbers small.</div></div>
+
+    <!-- Ex 15: Fix & Solve -->
+    <div class="ex-card" id="u1q15">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">15</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Word problem: Riya has 3/4 of a pizza. She eats 1/3 of her share. How much of the whole pizza did she eat?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong working:</strong><br>
+        <span class="step-line">She ate 1/3 of 3/4</span>
+        <span class="step-line">Wrong: 1/3 + 3/4 = 4/7 + 9/12 … confused method → answer: 4/7 ❌</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct: "of" means × → 1/3 × 3/4 = <input class="fill-input" id="u1q15-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Simplified: <input class="fill-input" id="u1q15-b2" placeholder="? of the whole pizza"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u1q15',['u1q15-b1','u1q15-b2'])">✅ Check Answer</button>
+      <div id="u1q15-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">"1/3 of 3/4" means 1/3 × 3/4 = 3/12 = 1/4. She ate 1/4 of the whole pizza.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> In word problems, "of" always means multiply. "1/3 of 3/4" = 1/3 × 3/4. Never add when you see "of"!</div></div>
+
+    <button class="submit-unit-btn" id="submit-u1" onclick="submitUnit(1)">📊 Submit Unit 1 &amp; Save Score</button>
+  </div>
+
+  <!-- ══════════════ UNIT 2: INTEGERS ══════════════ -->
+  <div class="unit-page" id="unit-1">
+    <div class="unit-header" style="background:linear-gradient(135deg,#059669,#10b981)">
+      <div class="unit-label">Unit 2 of 5</div>
+      <h2>➕➖ Integers Mistakes</h2>
+      <div class="unit-sub">Positive &amp; negative numbers · Operations · Number line</div>
+    </div>
+
+    <div class="section-label label-easy">🟢 Section A — Easy (Ex 1–5)</div>
+
+    <!-- U2 Ex 1 -->
+    <div class="ex-card" id="u2q1">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">1</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is −3 + (−4) = −1 correct?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>−3 + (−4) = ?</strong><br>
+        <span class="step-line">Student thinks: "negative plus negative cancels out"</span>
+        <span class="step-line">Writes: −3 + (−4) = −1</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u2q1','true')">✅ True</button>
+        <button class="tf-btn" onclick="selectTF(this,'u2q1','false')">❌ False</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u2q1')">✅ Check Answer</button>
+      <div id="u2q1-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. Negative + negative goes MORE negative. −3 + (−4) = −7. Think of it as owing ₹3 and borrowing another ₹4 — now you owe ₹7!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Adding a negative = moving left on the number line. −3 + (−4) goes 4 more steps left from −3, landing at −7.</div></div>
+
+    <!-- U2 Ex 2 -->
+    <div class="ex-card" id="u2q2">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">2</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Subtracting a negative: 5 − (−3)</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>5 − (−3) = ?</strong><br>
+        <span class="step-line">Step 1: Subtracting a negative</span>
+        <span class="step-line">Step 2: "Two negatives cancel, so subtract" → 5 − 3 = 2</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u2q2',0)"><span class="step-icon">1️⃣</span> Step 1: Identifying subtracting a negative</button>
+        <button class="step-btn" onclick="selectStep(this,'u2q2',1)"><span class="step-icon">2️⃣</span> Step 2: Converting to 5 − 3 = 2</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u2q2')">✅ Check Answer</button>
+      <div id="u2q2-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2 is wrong. Subtracting a negative = adding a positive. 5 − (−3) = 5 + 3 = 8.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> − (−) = + . Subtracting a negative makes you go RIGHT on the number line, just like adding a positive. 5 − (−3) = 5 + 3 = 8.</div></div>
+
+    <!-- U2 Ex 3 -->
+    <div class="ex-card" id="u2q3">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">3</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Multiplication signs: (−6) × (−4)</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Sign rule — negative × negative = <input class="fill-input" id="u2q3-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: 6 × 4 = <input class="fill-input" id="u2q3-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: Apply sign: final answer = <input class="fill-input" id="u2q3-b3" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q3',['u2q3-b1','u2q3-b2','u2q3-b3'])">✅ Check Answer</button>
+      <div id="u2q3-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Negative × Negative = Positive. 6×4=24. Answer: +24</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Sign rules for multiplication: multiplying two numbers with the same sign always produces a positive result; multiplying two numbers with opposite signs produces a negative result.</div></div>
+
+    <!-- U2 Ex 4 -->
+    <div class="ex-card" id="u2q4">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">4</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Order of integers on number line: −5, 2, −1, 0</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>Smallest to largest:<br>−5, −1, 0, 2 ✓</div>
+        <div class="sol-box"><h4>Solution B</h4>Smallest to largest:<br>−1, −5, 0, 2</div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u2q4','A')"><input type="radio" name="u2q4">Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u2q4','B')"><input type="radio" name="u2q4">Solution B is correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u2q4')">✅ Check Answer</button>
+      <div id="u2q4-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. On a number line, more negative = smaller. −5 is the furthest left, so smallest. Order: −5, −1, 0, 2</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> −5 &lt; −1 because −5 is further left on the number line. Don't be tricked by the magnitude — among negatives, larger magnitude = smaller value.</div></div>
+
+    <!-- U2 Ex 5 -->
+    <div class="ex-card" id="u2q5">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">5</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: (−3)² = −9</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>(−3)² = ?</strong><br>
+        <span class="step-line">Wrong: (−3)² = −(3²) = −9 ❌</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct: (−3)² means (−3) × (−3) = <input class="fill-input" id="u2q5-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Sign rule: (−) × (−) = <input class="fill-input" id="u2q5-b2" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q5',['u2q5-b1','u2q5-b2'])">✅ Check Answer</button>
+      <div id="u2q5-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">(−3)² = (−3)×(−3) = +9. The bracket means the negative is included in the squaring!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> (−3)² = +9 but −3² = −9. The bracket makes all the difference! With brackets, the negative is squared too.</div></div>
+
+    <div class="section-label label-med">🟡 Section B — Medium (Ex 6–10)</div>
+
+    <!-- U2 Ex 6 -->
+    <div class="ex-card" id="u2q6">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">6</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">BODMAS with integers: −2 + 3 × (−4)</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>−2 + 3 × (−4) = ?</strong><br>
+        <span class="step-line">Step 1: Evaluate addition first: −2 + 3 = 1</span>
+        <span class="step-line">Step 2: Multiply by (−4): 1 × (−4) = −4</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u2q6',0)"><span class="step-icon">1️⃣</span> Step 1: −2 + 3 = 1</button>
+        <button class="step-btn" onclick="selectStep(this,'u2q6',1)"><span class="step-icon">2️⃣</span> Step 2: 1 × (−4) = −4</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u2q6')">✅ Check Answer</button>
+      <div id="u2q6-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 is wrong. BODMAS: multiplication before addition. First: 3 × (−4) = −12. Then: −2 + (−12) = −14.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> BODMAS always applies with integers too. Multiplication and division come BEFORE addition and subtraction, regardless of left-to-right order.</div></div>
+
+    <!-- U2 Ex 7 -->
+    <div class="ex-card" id="u2q7">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">7</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is −|−8| = 8?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Evaluate: −|−8|</strong><br>
+        <span class="step-line">Student writes: |−8| = −8 (absolute value keeps the sign)</span>
+        <span class="step-line">Then −(−8) = 8</span>
+        <span class="step-line">Answer: 8</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u2q7','true')">True — The answer is 8</button>
+        <button class="tf-btn" onclick="selectTF(this,'u2q7','false')">False — The answer is −8</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u2q7')">✅ Check Answer</button>
+      <div id="u2q7-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">The final answer −8 is wrong. |−8| = 8 (absolute value is ALWAYS positive). Then −|−8| = −8. The student accidentally got 8 through a lucky double error.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Absolute value |x| always gives a non-negative result. |−8| = 8, not −8. Then −|−8| = −(8) = −8.</div></div>
+
+    <!-- U2 Ex 8 -->
+    <div class="ex-card" id="u2q8">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">8</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Dividing integers: (−36) ÷ (−4)</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Signs: (−) ÷ (−) = <input class="fill-input" id="u2q8-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: 36 ÷ 4 = <input class="fill-input" id="u2q8-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: Apply sign: answer = <input class="fill-input" id="u2q8-b3" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q8',['u2q8-b1','u2q8-b2','u2q8-b3'])">✅ Check Answer</button>
+      <div id="u2q8-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Same signs → positive. 36÷4=9. Answer: +9</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Division sign rules are identical to multiplication: same signs = positive, different signs = negative.</div></div>
+
+    <!-- U2 Ex 9 -->
+    <div class="ex-card" id="u2q9">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">9</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Simplify: (−2)³ × (−1)⁴</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>(−2)³ = −8<br>(−1)⁴ = +1<br>−8 × 1 = <strong>−8</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>(−2)³ = −8<br>(−1)⁴ = −1<br>−8 × (−1) = <strong>+8</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u2q9','A')"><input type="radio" name="u2q9">Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u2q9','B')"><input type="radio" name="u2q9">Solution B is correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u2q9')">✅ Check Answer</button>
+      <div id="u2q9-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. (−1)⁴ = (−1)×(−1)×(−1)×(−1) = +1. An even power of −1 is always +1. Odd power = −1.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> (−1) to an even power = +1. (−1) to an odd power = −1. Count the negative pairs to determine the final sign.</div></div>
+
+    <!-- U2 Ex 10 -->
+    <div class="ex-card" id="u2q10">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#059669">10</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: Temperature problem — If it was −5°C and dropped 8°C, what is the new temperature?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: −5 − 8 = +3 ❌</strong><br>
+        <span class="step-line">Student confused the signs</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct: −5 − 8 = <input class="fill-input" id="u2q10-b1" placeholder="?°C"></span>
+        <span class="step-line fill-line">The temperature <input class="fill-input" id="u2q10-b2" placeholder="rose/dropped"> further</span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q10',['u2q10-b1','u2q10-b2'])">✅ Check Answer</button>
+      <div id="u2q10-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">−5 − 8 = −13°C. Both negatives make it go more negative (colder). The temperature dropped further to −13°C.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> In real-world problems, "drop" in temperature means subtract (go more negative). −5 − 8 = −13, not +3.</div></div>
+
+    <div class="section-label label-hard">🔴 Section C — Hard (Ex 11–15)</div>
+
+    <!-- U2 Ex 11 -->
+    <div class="ex-card" id="u2q11">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">11</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Complex: [(−3 + 7) × (−2)] − (−10)</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>[(−3 + 7) × (−2)] − (−10)</strong><br>
+        <span class="step-line">Step 1: Inner bracket: −3 + 7 = 4</span>
+        <span class="step-line">Step 2: 4 × (−2) = −8</span>
+        <span class="step-line">Step 3: −8 − (−10) = −8 − 10 = −18</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u2q11',0)"><span class="step-icon">1️⃣</span> Step 1: −3 + 7 = 4</button>
+        <button class="step-btn" onclick="selectStep(this,'u2q11',1)"><span class="step-icon">2️⃣</span> Step 2: 4 × (−2) = −8</button>
+        <button class="step-btn" onclick="selectStep(this,'u2q11',2)"><span class="step-icon">3️⃣</span> Step 3: −8 − (−10) = −8 − 10 = −18</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u2q11')">✅ Check Answer</button>
+      <div id="u2q11-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 3 is wrong. −8 − (−10) = −8 + 10 = +2. Subtracting a negative = adding a positive!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Even in long expressions, the rule − (−) = + always applies. Never forget to convert − (−) to + before calculating.</div></div>
+
+    <!-- U2 Ex 12 -->
+    <div class="ex-card" id="u2q12">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">12</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is the product of three negatives always positive?</div></div>
+      </div>
+      <div class="problem-box">
+        <strong>Statement:</strong> The product of any three negative integers is always positive.<br>
+        <span class="step-line">Example given: (−2) × (−3) × (−5) = +30</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u2q12','true')">✅ True — Always positive</button>
+        <button class="tf-btn" onclick="selectTF(this,'u2q12','false')">❌ False — Not always positive</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u2q12')">✅ Check Answer</button>
+      <div id="u2q12-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. (−2)×(−3)×(−5) = +6 × (−5) = −30, not +30. Three negatives = negative result. The example in the question is wrong!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Count the negatives: even number of negatives = positive result. Odd number of negatives = negative result. Three negatives = odd = NEGATIVE.</div></div>
+
+    <!-- U2 Ex 13 -->
+    <div class="ex-card" id="u2q13">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">13</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Evaluate: −3² vs (−3)²</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>−3² = −(3²) = −9<br>(−3)² = 9<br>They are <strong>different</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>−3² = (−3)² = 9<br>Both are the same because squaring removes the negative</div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u2q13','A')"><input type="radio" name="u2q13">Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u2q13','B')"><input type="radio" name="u2q13">Solution B is correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u2q13')">✅ Check Answer</button>
+      <div id="u2q13-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. −3² = −9 (the square only applies to 3, then negate). (−3)² = +9 (the bracket includes the negative in the squaring). They are DIFFERENT!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Brackets change everything: −3² = −9 but (−3)² = +9. The exponent only applies to what it sits directly next to.</div></div>
+
+    <!-- U2 Ex 14 -->
+    <div class="ex-card" id="u2q14">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">14</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Integer word problem: Riya owes ₹120. She earns ₹50 but then loses ₹30. What is her net position?</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Starting position: <input class="fill-input" id="u2q14-b1" placeholder="? (debt is negative)"></span>
+        <span class="step-line fill-line">Step 2: After earning ₹50: −120 + 50 = <input class="fill-input" id="u2q14-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: After losing ₹30: <input class="fill-input" id="u2q14-b3" placeholder="Step 2"> − 30 = <input class="fill-input" id="u2q14-b4" placeholder="final"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q14',['u2q14-b1','u2q14-b2','u2q14-b3','u2q14-b4'])">✅ Check Answer</button>
+      <div id="u2q14-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Start: −120. After earning: −120+50=−70. After losing: −70−30=−100. She still owes ₹100.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> In money problems, debt = negative, earnings = positive. Work through each transaction step by step using integer operations.</div></div>
+
+    <!-- U2 Ex 15 -->
+    <div class="ex-card" id="u2q15">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">15</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: (−4 + 2) × 3 − (−6 ÷ 2) = ?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong working:</strong><br>
+        <span class="step-line">Step 1: −4 + 2 × 3 = −4 + 6 = 2 (missed bracket!)</span>
+        <span class="step-line">Step 2: −6 ÷ 2 = −3, so − (−3) = +3</span>
+        <span class="step-line">Step 3: 2 + 3 = 5 ❌ (ignored brackets!)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct Step 1: (−4 + 2) = <input class="fill-input" id="u2q15-b1" placeholder="?"> × 3 = <input class="fill-input" id="u2q15-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Correct Step 2: −(−6÷2) = −(<input class="fill-input" id="u2q15-b3" placeholder="?">) = <input class="fill-input" id="u2q15-b4" placeholder="?"></span>
+        <span class="step-line fill-line">Final: <input class="fill-input" id="u2q15-b5" placeholder="step1"> + <input class="fill-input" id="u2q15-b6" placeholder="step2"> = <input class="fill-input" id="u2q15-b7" placeholder="answer"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u2q15',['u2q15-b1','u2q15-b2','u2q15-b3','u2q15-b4','u2q15-b5','u2q15-b6','u2q15-b7'])">✅ Check Answer</button>
+      <div id="u2q15-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1: (−4+2)=−2, −2×3=−6. Step 2: −6÷2=−3, −(−3)=+3. Final: −6+3=−3</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Brackets MUST be evaluated first — always. Ignoring them is one of the most common mistakes in integer expressions.</div></div>
+
+    <button class="submit-unit-btn" id="submit-u2" onclick="submitUnit(2)">📊 Submit Unit 2 &amp; Save Score</button>
+  </div>
+
+  <!-- ══════════════ UNIT 3: ALGEBRA ══════════════ -->
+  <div class="unit-page" id="unit-2">
+    <div class="unit-header" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
+      <div class="unit-label">Unit 3 of 5</div>
+      <h2>🔤 Algebra Mistakes</h2>
+      <div class="unit-sub">Equations · Expressions · Substitution · Word problems</div>
+    </div>
+
+    <div class="section-label label-easy">🟢 Section A — Easy (Ex 1–5)</div>
+
+    <!-- U3 Ex 1 -->
+    <div class="ex-card" id="u3q1">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">1</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Solve: 2x + 5 = 13</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>2x + 5 = 13</strong><br>
+        <span class="step-line">Step 1: 2x + 5 = 13</span>
+        <span class="step-line">Step 2: 2x = 13 + 5 = 18</span>
+        <span class="step-line">Step 3: x = 18 ÷ 2 = 9</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u3q1',0)"><span class="step-icon">1️⃣</span> Step 1: 2x + 5 = 13</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q1',1)"><span class="step-icon">2️⃣</span> Step 2: 2x = 13 + 5 = 18</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q1',2)"><span class="step-icon">3️⃣</span> Step 3: x = 18 ÷ 2 = 9</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u3q1')">✅ Check Answer</button>
+      <div id="u3q1-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2 is wrong. To isolate 2x, subtract 5 from both sides: 2x = 13 − 5 = 8. Then x = 8 ÷ 2 = 4.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> To move a term across the equals sign, do the OPPOSITE operation. +5 becomes −5 when it crosses. Think: "undo" each operation.</div></div>
+
+    <!-- U3 Ex 2 -->
+    <div class="ex-card" id="u3q2">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">2</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is x = 3 the solution of 4x − 1 = 11?</div></div>
+      </div>
+      <div class="problem-box">
+        <strong>Check: is x = 3 correct for 4x − 1 = 11?</strong><br>
+        <span class="step-line">Substituting: 4(3) − 1 = 12 − 1 = 11 ✓</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u3q2','true')">✅ True — x = 3 is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u3q2','false')">❌ False — x = 3 is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u3q2')">✅ Check Answer</button>
+      <div id="u3q2-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">TRUE. 4(3)−1 = 12−1 = 11 ✓. Substitution confirms x = 3 is correct.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Always verify your solution by substituting back into the original equation. Both sides must be equal.</div></div>
+
+    <!-- U3 Ex 3 -->
+    <div class="ex-card" id="u3q3">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">3</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Solve: 3x − 7 = 14</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Add 7 both sides: 3x = 14 + 7 = <input class="fill-input" id="u3q3-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: Divide both sides by 3: x = <input class="fill-input" id="u3q3-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: Verify: 3(<input class="fill-input" id="u3q3-b3" placeholder="x">) − 7 = <input class="fill-input" id="u3q3-b4" placeholder="?"> ✓</span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q3',['u3q3-b1','u3q3-b2','u3q3-b3','u3q3-b4'])">✅ Check Answer</button>
+      <div id="u3q3-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">3x = 14+7 = 21. x = 21÷3 = 7. Verify: 3(7)−7 = 21−7 = 14 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Always verify your answer by substituting back. If 3(7)−7 = 14 ✓, then x = 7 is confirmed correct.</div></div>
+
+    <!-- U3 Ex 4 -->
+    <div class="ex-card" id="u3q4">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">4</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Solve: x/3 + 2 = 5</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>x/3 + 2 = 5<br>x/3 = 5 + 2 = 7<br>x = 7 × 3 = <strong>21</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>x/3 + 2 = 5<br>x/3 = 5 − 2 = 3<br>x = 3 × 3 = <strong>9</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u3q4','A')"><input type="radio" name="u3q4">Solution A (x = 21)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u3q4','B')"><input type="radio" name="u3q4">Solution B (x = 9)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u3q4')">✅ Check Answer</button>
+      <div id="u3q4-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution B. To isolate x/3, subtract 2 from both sides: x/3 = 3. Then x = 9. Solution A added 2 instead of subtracting.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Moving +2 to the other side means −2. Moving −2 means +2. Always do the opposite operation.</div></div>
+
+    <!-- U3 Ex 5 -->
+    <div class="ex-card" id="u3q5">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">5</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: "5 more than twice a number is 19. Find the number."</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong setup: 2 + 5n = 19 → n = 19/7 ❌</strong>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Correct equation: <input class="fill-input" id="u3q5-b1" placeholder="? (let n = the number)"></span>
+        <span class="step-line fill-line">Step 1: 2n = 19 − 5 = <input class="fill-input" id="u3q5-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: n = <input class="fill-input" id="u3q5-b3" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q5',['u3q5-b1','u3q5-b2','u3q5-b3'])">✅ Check Answer</button>
+      <div id="u3q5-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">"Twice a number" = 2n. "5 more than" = +5. Equation: 2n + 5 = 19. So 2n = 14, n = 7.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> "5 more than twice a number" = 2n + 5 (not 2 + 5n). "Times" and "more than" have a specific order — translate word by word.</div></div>
+
+    <div class="section-label label-med">🟡 Section B — Medium (Ex 6–10)</div>
+
+    <!-- U3 Ex 6 -->
+    <div class="ex-card" id="u3q6">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">6</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Expanding brackets: 3(2x + 4) = 6x + 4</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Expand: 3(2x + 4)</strong><br>
+        <span class="step-line">Step 1: Multiply 3 by the first term: 3 × 2x = 6x</span>
+        <span class="step-line">Step 2: "Plus 4 stays the same" → 6x + 4</span>
+        <span class="step-line">Answer: 6x + 4 ❌</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u3q6',0)"><span class="step-icon">1️⃣</span> Step 1: 3 × 2x = 6x</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q6',1)"><span class="step-icon">2️⃣</span> Step 2: 6x + 4</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u3q6')">✅ Check Answer</button>
+      <div id="u3q6-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2 is wrong. The 3 must multiply EVERY term inside the bracket. 3 × 4 = 12. Correct answer: 6x + 12.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When expanding brackets, the number outside multiplies EVERY term inside — no exceptions. 3(2x + 4) = 6x + 12.</div></div>
+
+    <!-- U3 Ex 7 -->
+    <div class="ex-card" id="u3q7">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">7</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is 2(x − 3) = 2x − 3?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Expand: 2(x − 3)</strong><br>
+        <span class="step-line">Student writes: 2(x − 3) = 2x − 3</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u3q7','true')">✅ True — 2x − 3 is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u3q7','false')">❌ False — working has an error</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u3q7')">✅ Check Answer</button>
+      <div id="u3q7-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. 2(x − 3) = 2×x − 2×3 = 2x − 6. The 2 must multiply the 3 as well.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> 2(x − 3) ≠ 2x − 3. The multiplier applies to BOTH terms: 2×x=2x and 2×3=6. Answer: 2x − 6.</div></div>
+
+    <!-- U3 Ex 8 -->
+    <div class="ex-card" id="u3q8">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">8</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Solve: 5(x − 2) = 3x + 6</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Expand: <input class="fill-input" id="u3q8-b1" placeholder="expand left"> = 3x + 6</span>
+        <span class="step-line fill-line">Step 2: Move 3x left: <input class="fill-input" id="u3q8-b2" placeholder="?"> = 6</span>
+        <span class="step-line fill-line">Step 3: Move −10 right: 2x = <input class="fill-input" id="u3q8-b3" placeholder="?"></span>
+        <span class="step-line fill-line">Step 4: x = <input class="fill-input" id="u3q8-b4" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q8',['u3q8-b1','u3q8-b2','u3q8-b3','u3q8-b4'])">✅ Check Answer</button>
+      <div id="u3q8-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">5x−10=3x+6 → 2x−10=6 → 2x=16 → x=8</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When solving equations with brackets: expand first, then collect like terms on each side, then isolate x.</div></div>
+
+    <!-- U3 Ex 9 -->
+    <div class="ex-card" id="u3q9">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">9</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Substitution: a=2, b=−3 → find 2a² − b</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>2a² − b<br>= 2(2²) − (−3)<br>= 2(4) + 3<br>= 8 + 3 = <strong>11</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>2a² − b<br>= (2×2)² − (−3)<br>= 4² + 3<br>= 16 + 3 = <strong>19</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u3q9','A')"><input type="radio" name="u3q9">Solution A (answer = 11)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u3q9','B')"><input type="radio" name="u3q9">Solution B (answer = 19)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u3q9')">✅ Check Answer</button>
+      <div id="u3q9-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. 2a² means 2 × (a²), not (2a)². So substitute a=2: 2 × (4) = 8. Then −(−3) = +3. Total: 11.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> 2a² means 2 × (a²). The exponent only applies to a, not to the coefficient 2. Substitute carefully!</div></div>
+
+    <!-- U3 Ex 10 -->
+    <div class="ex-card" id="u3q10">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#dc2626">10</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: Collecting like terms — 3x + 2y + 5x − y</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: 3x + 2y + 5x − y = 8xy ❌</strong><br>
+        <span class="step-line">(Student added ALL terms together as if they were alike)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">x terms: 3x + 5x = <input class="fill-input" id="u3q10-b1" placeholder="?"></span>
+        <span class="step-line fill-line">y terms: 2y − y = <input class="fill-input" id="u3q10-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Final answer: <input class="fill-input" id="u3q10-b3" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q10',['u3q10-b1','u3q10-b2','u3q10-b3'])">✅ Check Answer</button>
+      <div id="u3q10-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Only like terms can be combined. x-terms: 3x+5x=8x. y-terms: 2y−y=y. Answer: 8x + y (NOT 8xy!)</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Like terms have the SAME variable. 3x and 5x are like terms (both x). 2y and −y are like terms (both y). x and y are DIFFERENT — you cannot combine them.</div></div>
+
+    <div class="section-label label-hard">🔴 Section C — Hard (Ex 11–15)</div>
+
+    <!-- U3 Ex 11 -->
+    <div class="ex-card" id="u3q11">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">11</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Solve: (x+3)/2 = (x−1)/3</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>(x+3)/2 = (x−1)/3</strong><br>
+        <span class="step-line">Step 1: Cross multiply: 3(x+3) = 2(x−1)</span>
+        <span class="step-line">Step 2: 3x + 9 = 2x − 1</span>
+        <span class="step-line">Step 3: 3x − 2x = −1 − 9</span>
+        <span class="step-line">Step 4: x = −10</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u3q11',0)"><span class="step-icon">1️⃣</span> Step 1: 3(x+3) = 2(x−1)</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q11',1)"><span class="step-icon">2️⃣</span> Step 2: 3x + 9 = 2x − 1</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q11',2)"><span class="step-icon">3️⃣</span> Step 3: 3x − 2x = −1 − 9</button>
+        <button class="step-btn" onclick="selectStep(this,'u3q11',3)"><span class="step-icon">4️⃣</span> Step 4: x = −10</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u3q11')">✅ Check Answer</button>
+      <div id="u3q11-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">In Step 2: 2(x−1) = 2x − 2, not 2x − 1! Both terms inside the bracket must be multiplied by 2. Correct Step 2: 3x + 9 = 2x − 2 → 3x − 2x = −2 − 9 → x = −11.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When expanding brackets after cross-multiplication, expand BOTH sides fully. 2(x−1) = 2x − 2, not 2x − 1.</div></div>
+
+    <!-- U3 Ex 12 -->
+    <div class="ex-card" id="u3q12">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">12</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">If 3x + 6 = 0, then x = 2</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Solve: 3x + 6 = 0</strong><br>
+        <span class="step-line">3x = 0 + 6 = 6</span>
+        <span class="step-line">x = 6/3 = 2</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u3q12','true')">✅ True — x = 2 is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u3q12','false')">❌ False — x = 2 is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u3q12')">✅ Check Answer</button>
+      <div id="u3q12-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. 3x + 6 = 0 → 3x = −6 → x = −2. The student added 6 instead of subtracting it.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> 3x + 6 = 0 means 3x = −6 (subtract 6 from both sides). x = −2. Verify: 3(−2) + 6 = −6 + 6 = 0 ✓</div></div>
+
+    <!-- U3 Ex 13 -->
+    <div class="ex-card" id="u3q13">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">13</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Solve simultaneously: x + y = 10, x − y = 4</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>Add equations:<br>2x = 14 → x = 7<br>Sub back: 7+y=10<br>y = 3<br>→ <strong>x=7, y=3</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>Subtract equations:<br>2y = 6 → y = 3<br>Sub back: x+3=10<br>x = 7<br>→ <strong>x=7, y=3</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u3q13','A')"><input type="radio" name="u3q13">Only Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u3q13','B')"><input type="radio" name="u3q13">Only Solution B is correct</label>
+        <label class="radio-btn" data-val="C" onclick="selectRadio(this,'u3q13','C')"><input type="radio" name="u3q13">Both methods are correct</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u3q13')">✅ Check Answer</button>
+      <div id="u3q13-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Both correct! Adding eliminates y (find x first). Subtracting eliminates x (find y first). Both valid methods giving x=7, y=3.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Simultaneous equations can be solved by adding OR subtracting. Choose whichever eliminates a variable more cleanly.</div></div>
+
+    <!-- U3 Ex 14 -->
+    <div class="ex-card" id="u3q14">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">14</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Solve: 2(3x − 1) + 4 = 3(x + 5)</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Expand left: <input class="fill-input" id="u3q14-b1" placeholder="expand 2(3x−1)+4"></span>
+        <span class="step-line fill-line">Step 2: Simplify left: <input class="fill-input" id="u3q14-b2" placeholder="simplified left side"></span>
+        <span class="step-line fill-line">Step 3: Expand right: <input class="fill-input" id="u3q14-b3" placeholder="expand 3(x+5)"></span>
+        <span class="step-line fill-line">Step 4: 6x + 2 = 3x + 15 → x = <input class="fill-input" id="u3q14-b4" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q14',['u3q14-b1','u3q14-b2','u3q14-b3','u3q14-b4'])">✅ Check Answer</button>
+      <div id="u3q14-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Left: 6x−2+4=6x+2. Right: 3x+15. So 6x+2=3x+15 → 3x=13 → x=13/3</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Expand ALL brackets first, then simplify each side, then move unknowns to one side and numbers to the other.</div></div>
+
+    <!-- U3 Ex 15 -->
+    <div class="ex-card" id="u3q15">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">15</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Arjun is 3 times as old as his sister. In 5 years, he'll be twice her age. Find his current age.</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong setup: 3x + 5 = 2x + 5 ❌</strong><br>
+        <span class="step-line">(Student forgot to update sister's age in 5 years)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Let sister's age = x. Arjun's age = <input class="fill-input" id="u3q15-b1" placeholder="?"></span>
+        <span class="step-line fill-line">In 5 years: Arjun = <input class="fill-input" id="u3q15-b2" placeholder="?">, sister = <input class="fill-input" id="u3q15-b3" placeholder="?"></span>
+        <span class="step-line fill-line">Equation: 3x + 5 = 2(<input class="fill-input" id="u3q15-b4" placeholder="sister in 5yr">)</span>
+        <span class="step-line fill-line">Solve: x = <input class="fill-input" id="u3q15-b5" placeholder="?">, Arjun = <input class="fill-input" id="u3q15-b6" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u3q15',['u3q15-b1','u3q15-b2','u3q15-b3','u3q15-b4','u3q15-b5','u3q15-b6'])">✅ Check Answer</button>
+      <div id="u3q15-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Arjun=3x. In 5yrs: 3x+5=2(x+5) → 3x+5=2x+10 → x=5. Arjun=15. Check: 15 is 3×5 ✓. In 5yrs: 20=2×10 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> In age problems, BOTH people's ages change in future/past scenarios. Add the same number of years to ALL people's ages.</div></div>
+
+    <button class="submit-unit-btn" id="submit-u3" onclick="submitUnit(3)">📊 Submit Unit 3 &amp; Save Score</button>
+  </div>
+
+  <!-- ══════════════ UNIT 4: PERCENTAGES & DECIMALS ══════════════ -->
+  <div class="unit-page" id="unit-3">
+    <div class="unit-header" style="background:linear-gradient(135deg,#d97706,#f59e0b)">
+      <div class="unit-label">Unit 4 of 5</div>
+      <h2>💯 Percentages &amp; Decimals Mistakes</h2>
+      <div class="unit-sub">% calculations · Conversions · Increase/Decrease · Reverse %</div>
+    </div>
+
+    <div class="section-label label-easy">🟢 Section A — Easy (Ex 1–5)</div>
+
+    <!-- U4 Ex 1 -->
+    <div class="ex-card" id="u4q1">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">1</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Find 20% of 150</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>20% of 150 = ?</strong><br>
+        <span class="step-line">Step 1: Write 20% as fraction: 20/10</span>
+        <span class="step-line">Step 2: 20/10 × 150 = 2 × 150 = 300</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u4q1',0)"><span class="step-icon">1️⃣</span> Step 1: 20% = 20/10</button>
+        <button class="step-btn" onclick="selectStep(this,'u4q1',1)"><span class="step-icon">2️⃣</span> Step 2: 20/10 × 150 = 300</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u4q1')">✅ Check Answer</button>
+      <div id="u4q1-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 is wrong. 20% = 20/100 (percent means "per hundred"). 20/100 × 150 = 0.2 × 150 = 30.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> "Per cent" = "per hundred". So 20% = 20/100 = 0.2. Never use /10!</div></div>
+
+    <!-- U4 Ex 2 -->
+    <div class="ex-card" id="u4q2">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">2</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Is 0.075 = 7.5%?</div></div>
+      </div>
+      <div class="problem-box">
+        <strong>Convert 0.075 to a percentage</strong><br>
+        <span class="step-line">Student: multiply by 100 → 0.075 × 100 = 7.5%</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u4q2','true')">✅ True — 0.075 = 7.5%</button>
+        <button class="tf-btn" onclick="selectTF(this,'u4q2','false')">❌ False — working is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u4q2')">✅ Check Answer</button>
+      <div id="u4q2-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">TRUE. Decimal to % = multiply by 100. 0.075 × 100 = 7.5%. Correct!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Decimal → % : multiply by 100. % → Decimal: divide by 100. 0.075 × 100 = 7.5%.</div></div>
+
+    <!-- U4 Ex 3 -->
+    <div class="ex-card" id="u4q3">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">3</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">A shirt costs ₹400. It's on 25% sale. Find the sale price.</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Discount amount = 25% of 400 = <input class="fill-input" id="u4q3-b1" placeholder="₹?"></span>
+        <span class="step-line fill-line">Step 2: Sale price = 400 − <input class="fill-input" id="u4q3-b2" placeholder="discount"> = <input class="fill-input" id="u4q3-b3" placeholder="₹?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q3',['u4q3-b1','u4q3-b2','u4q3-b3'])">✅ Check Answer</button>
+      <div id="u4q3-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">25% of 400 = ₹100. Sale price = 400 − 100 = ₹300.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> For a discount: find the percentage amount first, then subtract it from the original price. Alternatively, calculate (100% − discount%) of the original price.</div></div>
+
+    <!-- U4 Ex 4 -->
+    <div class="ex-card" id="u4q4">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">4</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Express 45/60 as a percentage</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>45/60 × 100<br>= 4500/60<br>= <strong>75%</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>45/60 = 3/4<br>3/4 = 0.75<br>= <strong>0.75%</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u4q4','A')"><input type="radio" name="u4q4">Solution A (75%)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u4q4','B')"><input type="radio" name="u4q4">Solution B (0.75%)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u4q4')">✅ Check Answer</button>
+      <div id="u4q4-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. Solution B got the decimal right (0.75) but forgot to ×100 to convert to %. 0.75 is not a percentage — 75% is!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Fraction → % : divide to get decimal, then × 100. Don't stop at the decimal — the final step of ×100 is essential!</div></div>
+
+    <!-- U4 Ex 5 -->
+    <div class="ex-card" id="u4q5">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">5</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: "A price increased from ₹200 to ₹250. % increase = 50/200 × 100"</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: % increase = 50/250 × 100 = 20% ❌</strong><br>
+        <span class="step-line">(Used new price as denominator)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Increase = 250 − 200 = <input class="fill-input" id="u4q5-b1" placeholder="₹?"></span>
+        <span class="step-line fill-line">% increase = (increase / <input class="fill-input" id="u4q5-b2" placeholder="original">) × 100 = <input class="fill-input" id="u4q5-b3" placeholder="?%"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q5',['u4q5-b1','u4q5-b2','u4q5-b3'])">✅ Check Answer</button>
+      <div id="u4q5-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">% increase = (50/200)×100 = 25%. Always divide by the ORIGINAL value.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> % change = (change / original) × 100. ALWAYS divide by the original (starting) value, never the new value.</div></div>
+
+    <div class="section-label label-med">🟡 Section B — Medium (Ex 6–10)</div>
+
+    <!-- U4 Ex 6 -->
+    <div class="ex-card" id="u4q6">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">6</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Successive discounts: 20% then 10% off ₹500</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Total discount = 20% + 10% = 30%</strong><br>
+        <span class="step-line">Step 1: 30% of 500 = ₹150</span>
+        <span class="step-line">Step 2: Final price = 500 − 150 = ₹350</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u4q6',0)"><span class="step-icon">1️⃣</span> Step 1: Total discount = 20% + 10% = 30%</button>
+        <button class="step-btn" onclick="selectStep(this,'u4q6',1)"><span class="step-icon">2️⃣</span> Step 2: 30% of 500 = ₹150; Price = ₹350</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u4q6')">✅ Check Answer</button>
+      <div id="u4q6-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 is wrong. Successive discounts cannot be added. First: 20% off 500 = ₹400. Then: 10% off 400 = ₹40 off. Final: ₹360, not ₹350.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Successive percentage discounts CANNOT be added. Apply them one at a time. 20% then 10% is NOT the same as 30%!</div></div>
+
+    <!-- U4 Ex 7 -->
+    <div class="ex-card" id="u4q7">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">7</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">50% increase then 50% decrease returns to the original price</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Statement to evaluate:</strong><br>
+        <span class="step-line">"A shop increases an item's price by 50%, then decreases the new price by 50%."</span>
+        <span class="step-line">Claim: The price is back to its original value.</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u4q7','true')">True — returns to original</button>
+        <button class="tf-btn" onclick="selectTF(this,'u4q7','false')">False — does NOT return to original</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u4q7')">✅ Check Answer</button>
+      <div id="u4q7-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. As shown, ₹100 → ₹150 → ₹75. The second 50% applies to the LARGER amount ₹150, so removes more than was added. Net result is always a loss.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> +x% then −x% is always a net loss of x²/100 %. For 50%: net loss = 50²/100 = 25%. So ₹100 becomes ₹75.</div></div>
+
+    <!-- U4 Ex 8 -->
+    <div class="ex-card" id="u4q8">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">8</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Reverse percentage: After 20% increase, price is ₹480. Find original.</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">New price = 120% of original (100% + 20%)</span>
+        <span class="step-line fill-line">So: <input class="fill-input" id="u4q8-b1" placeholder="?">% of original = 480</span>
+        <span class="step-line fill-line">Original = 480 × <input class="fill-input" id="u4q8-b2" placeholder="?"> = <input class="fill-input" id="u4q8-b3" placeholder="₹?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q8',['u4q8-b1','u4q8-b2','u4q8-b3'])">✅ Check Answer</button>
+      <div id="u4q8-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">120% of original = 480. Original = (480/120)×100 = ₹400.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> For reverse %, the new value represents (100 ± change)% of the original. Divide by that percentage to find the original.</div></div>
+
+    <!-- U4 Ex 9 -->
+    <div class="ex-card" id="u4q9">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">9</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Simple interest: Principal ₹1000, rate 5%, time 3 years</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>SI = P×R×T/100<br>= 1000×5×3/100<br>= 15000/100<br>= <strong>₹150</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>SI = P×R×T<br>= 1000×5×3<br>= <strong>₹15,000</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u4q9','A')"><input type="radio" name="u4q9">Solution A (₹150)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u4q9','B')"><input type="radio" name="u4q9">Solution B (₹15,000)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u4q9')">✅ Check Answer</button>
+      <div id="u4q9-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. SI formula = PRT/100. Since R is a percentage, you must divide by 100. Solution B forgot the /100.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Simple Interest = (P × R × T) / 100. The /100 is essential because R is given as a percentage (e.g. 5 means 5/100).</div></div>
+
+    <!-- U4 Ex 10 -->
+    <div class="ex-card" id="u4q10">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#d97706">10</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: "In a class of 40, 30% are boys. Wrong: boys = 40 − 30 = 10"</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: 40 − 30 = 10 boys ❌</strong><br>
+        <span class="step-line">(Subtracted percentage from total instead of computing it)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Step 1: Number of boys = 30% of 40 = <input class="fill-input" id="u4q10-b1" placeholder="? boys"></span>
+        <span class="step-line fill-line">Step 2: Number of girls = 40 − 12 = <input class="fill-input" id="u4q10-b2" placeholder="? girls"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q10',['u4q10-b1','u4q10-b2'])">✅ Check Answer</button>
+      <div id="u4q10-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">30% of 40 = 12 boys. Girls = 40 − 12 = 28. Never subtract the % directly from the total!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> 30% of 40 ≠ 40 − 30. You must COMPUTE 30% of 40 = 12. The percentage is a rate, not a number to subtract directly.</div></div>
+
+    <div class="section-label label-hard">🔴 Section C — Hard (Ex 11–15)</div>
+
+    <!-- U4 Ex 11 -->
+    <div class="ex-card" id="u4q11">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">11</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Compound interest vs Simple interest confusion</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>P=₹1000, R=10%, T=2 years, find amount with compound interest</strong><br>
+        <span class="step-line">Step 1: SI for 2 years = 1000×10×2/100 = ₹200</span>
+        <span class="step-line">Step 2: Final amount = 1000 + 200 = ₹1200</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u4q11',0)"><span class="step-icon">1️⃣</span> Step 1: SI for 2 years = 1000×10×2/100 = ₹200</button>
+        <button class="step-btn" onclick="selectStep(this,'u4q11',1)"><span class="step-icon">2️⃣</span> Step 2: Final amount = 1000 + 200 = ₹1200</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u4q11')">✅ Check Answer</button>
+      <div id="u4q11-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 is wrong — used SI instead of CI. CI: Year 1: 1000×1.1=₹1100. Year 2: 1100×1.1=₹1210. Amount=₹1210 (not ₹1200).</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Compound interest = interest on interest. Year 1 interest is added to principal before calculating Year 2. CI always gives more than SI.</div></div>
+
+    <!-- U4 Ex 12 -->
+    <div class="ex-card" id="u4q12">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">12</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">A 10% profit on cost price of ₹500 means selling price = ₹510</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>CP = ₹500, Profit = 10%</strong><br>
+        <span class="step-line">Student: 10% profit means add ₹10 → SP = ₹510</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u4q12','true')">✅ True — SP = ₹510</button>
+        <button class="tf-btn" onclick="selectTF(this,'u4q12','false')">❌ False — SP is different</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u4q12')">✅ Check Answer</button>
+      <div id="u4q12-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. 10% profit means 10% OF ₹500 = ₹50 profit. SP = 500 + 50 = ₹550. The student added ₹10 (10% of ₹100) not 10% of ₹500.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Profit% is calculated ON the cost price. 10% of ₹500 = ₹50. So SP = ₹550. Always compute the % of the actual value!</div></div>
+
+    <!-- U4 Ex 13 -->
+    <div class="ex-card" id="u4q13">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">13</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Tax problem: Price before tax = ₹800, GST = 18%. Final price?</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>GST = 18% of 800<br>= 0.18×800 = ₹144<br>Final = 800+144<br>= <strong>₹944</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>Final = 118% of 800<br>= 1.18 × 800<br>= <strong>₹944</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u4q13','A')"><input type="radio" name="u4q13">Only Solution A is correct</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u4q13','B')"><input type="radio" name="u4q13">Only Solution B is correct</label>
+        <label class="radio-btn" data-val="C" onclick="selectRadio(this,'u4q13','C')"><input type="radio" name="u4q13">Both methods give the correct answer</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u4q13')">✅ Check Answer</button>
+      <div id="u4q13-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Both correct! Solution A: calculate tax then add. Solution B: multiply by (1 + rate). Both give ₹944.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> For a tax/increase problem: either (a) find the % amount and add, or (b) multiply by (100+%)÷100. Both methods are valid.</div></div>
+
+    <!-- U4 Ex 14 -->
+    <div class="ex-card" id="u4q14">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">14</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">After a 15% discount, a bag costs ₹680. Find the marked price.</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: ₹680 = (100−15)% of MP = <input class="fill-input" id="u4q14-b1" placeholder="?%"> of MP</span>
+        <span class="step-line fill-line">Step 2: MP = 680 ÷ <input class="fill-input" id="u4q14-b2" placeholder="0.??"> = <input class="fill-input" id="u4q14-b3" placeholder="₹?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q14',['u4q14-b1','u4q14-b2','u4q14-b3'])">✅ Check Answer</button>
+      <div id="u4q14-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">85% of MP = 680. MP = 680/0.85 = ₹800.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> In a reverse discount problem, the sale price represents (100 − discount)% of the marked price. Convert that percentage to a decimal to find the marked price.</div></div>
+
+    <!-- U4 Ex 15 -->
+    <div class="ex-card" id="u4q15">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">15</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Fix: "A population grew from 8000 to 10000. % growth = (10000−8000)/10000 × 100"</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: using new value as denominator → 2000/10000 × 100 = 20% ❌</strong>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Change = 10000 − 8000 = <input class="fill-input" id="u4q15-b1" placeholder="?"></span>
+        <span class="step-line fill-line">% growth = 2000 / <input class="fill-input" id="u4q15-b2" placeholder="original"> × 100 = <input class="fill-input" id="u4q15-b3" placeholder="?%"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u4q15',['u4q15-b1','u4q15-b2','u4q15-b3'])">✅ Check Answer</button>
+      <div id="u4q15-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">% growth = (2000/8000)×100 = 25%. Always divide by the ORIGINAL value (8000), not the new value.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> % change formula always uses the ORIGINAL as denominator. Divide by where you started, not where you ended.</div></div>
+
+    <button class="submit-unit-btn" id="submit-u4" onclick="submitUnit(4)">📊 Submit Unit 4 &amp; Save Score</button>
+  </div>
+
+  <!-- ══════════════ UNIT 5: GRAND CHALLENGE ══════════════ -->
+  <div class="unit-page" id="unit-4">
+    <div class="unit-header" style="background:linear-gradient(135deg,#7c3aed,#1a56db)">
+      <div class="unit-label">Unit 5 of 5 — Grand Challenge</div>
+      <h2>🏆 All Topics Mixed</h2>
+      <div class="unit-sub">Fractions · Integers · Algebra · Percentages — combined!</div>
+    </div>
+
+    <div class="section-label label-easy">🟢 Section A — Warm Up (Ex 1–5)</div>
+
+    <!-- U5 Ex 1 -->
+    <div class="ex-card" id="u5q1">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">1</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Mixed: Is (−1/2)² = −1/4?</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>(−1/2)² = ?</strong><br>
+        <span class="step-line">Student: negative squared is negative → (−1/2)² = −1/4</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u5q1','true')">✅ True — −1/4 is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u5q1','false')">❌ False — answer is different</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u5q1')">✅ Check Answer</button>
+      <div id="u5q1-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. (−1/2)² = (−1/2) × (−1/2) = +1/4. Negative × negative = positive!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Any number squared is always positive (or zero). (−1/2)² = 1/4, not −1/4.</div></div>
+
+    <!-- U5 Ex 2 -->
+    <div class="ex-card" id="u5q2">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">2</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Fractions + Algebra: Solve x/4 + 1/2 = 1</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>x/4 + 1/2 = 1</strong><br>
+        <span class="step-line">Step 1: x/4 = 1 − 1/2 = 1/2</span>
+        <span class="step-line">Step 2: x = 1/2 ÷ 4 = 1/8</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u5q2',0)"><span class="step-icon">1️⃣</span> Step 1: x/4 = 1/2</button>
+        <button class="step-btn" onclick="selectStep(this,'u5q2',1)"><span class="step-icon">2️⃣</span> Step 2: x = 1/2 ÷ 4 = 1/8</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u5q2')">✅ Check Answer</button>
+      <div id="u5q2-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 2 is wrong. If x/4 = 1/2, then x = 1/2 × 4 = 2 (multiply both sides by 4, not divide).</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> To isolate x in x/4 = 1/2, multiply both sides by 4: x = 4 × 1/2 = 2. Division and multiplication are opposites — use the right one!</div></div>
+
+    <!-- U5 Ex 3 -->
+    <div class="ex-card" id="u5q3">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">3</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Integers + %: −20 is what % of 80?</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: (−20 / <input class="fill-input" id="u5q3-b1" placeholder="?base">) × 100</span>
+        <span class="step-line fill-line">Step 2: = (−20/80) × 100 = <input class="fill-input" id="u5q3-b2" placeholder="?%"></span>
+        <span class="step-line fill-line">Meaning: −20 is <input class="fill-input" id="u5q3-b3" placeholder="?%"> of 80 (negative means below zero)</span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q3',['u5q3-b1','u5q3-b2','u5q3-b3'])">✅ Check Answer</button>
+      <div id="u5q3-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">(−20/80)×100 = −25%. Negative percentages are valid — they indicate a value below the reference.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Percentages can be negative. −25% of 80 = −20. This is used in contexts like profit/loss calculations.</div></div>
+
+    <!-- U5 Ex 4 -->
+    <div class="ex-card" id="u5q4">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">4</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Algebra + Fractions: Simplify (2x/3) + (x/6)</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>LCM(3,6)=6<br>2x/3=4x/6<br>4x/6+x/6=<strong>5x/6</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>2x/3+x/6<br>= (2x+x)/(3+6)<br>= <strong>3x/9=x/3</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u5q4','A')"><input type="radio" name="u5q4">Solution A (5x/6)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u5q4','B')"><input type="radio" name="u5q4">Solution B (x/3)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u5q4')">✅ Check Answer</button>
+      <div id="u5q4-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. Solution B added both numerators AND denominators — that's wrong for fraction addition! Always use common denominator.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Algebraic fractions add just like numerical fractions — find common denominator, add numerators only. Never add denominators!</div></div>
+
+    <!-- U5 Ex 5 -->
+    <div class="ex-card" id="u5q5">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">5</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Find x: 30% of x = −12</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: x = −12 × 30 = −360 ❌</strong><br>
+        <span class="step-line">(Multiplied instead of dividing by 30%)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">30% of x = −12 means 0.3 × x = <input class="fill-input" id="u5q5-b1" placeholder="?"></span>
+        <span class="step-line fill-line">x = −12 ÷ <input class="fill-input" id="u5q5-b2" placeholder="?"> = <input class="fill-input" id="u5q5-b3" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q5',['u5q5-b1','u5q5-b2','u5q5-b3'])">✅ Check Answer</button>
+      <div id="u5q5-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">0.3x = −12 → x = −12 ÷ 0.3 = −40. Check: 30% of −40 = 0.3×(−40) = −12 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> "P% of x = y" means (P/100)×x = y, so x = y ÷ (P/100) = y × (100/P). Divide, don't multiply!</div></div>
+
+    <div class="section-label label-med">🟡 Section B — Mixed Challenge (Ex 6–10)</div>
+
+    <!-- U5 Ex 6 -->
+    <div class="ex-card" id="u5q6">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">6</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">Integers + Algebra: −2(x − 3) = 10</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Solve: −2(x − 3) = 10</strong><br>
+        <span class="step-line">Step 1: −2x − 6 = 10</span>
+        <span class="step-line">Step 2: −2x = 16 → x = −8</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u5q6',0)"><span class="step-icon">1️⃣</span> Step 1: −2x − 6 = 10</button>
+        <button class="step-btn" onclick="selectStep(this,'u5q6',1)"><span class="step-icon">2️⃣</span> Step 2: −2x = 16 → x = −8</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u5q6')">✅ Check Answer</button>
+      <div id="u5q6-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 wrong. −2×(x−3) = −2x + 6 (not −2x−6). Negative × negative = positive. Then: −2x+6=10 → −2x=4 → x=−2.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> −2(x−3): multiply −2 by BOTH terms. −2×x=−2x ✓ but −2×(−3)=+6, not −6!</div></div>
+
+    <!-- U5 Ex 7 -->
+    <div class="ex-card" id="u5q7">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">7</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Fractions + Algebra: 2/(x+1) = 2/x + 2/1</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Is this identity correct?</strong><br>
+        <span class="step-line">2/(x+1) = 2/x + 2/1 = 2/x + 2</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u5q7','true')">✅ True — this is a valid identity</button>
+        <button class="tf-btn" onclick="selectTF(this,'u5q7','false')">❌ False — this is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u5q7')">✅ Check Answer</button>
+      <div id="u5q7-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">FALSE. You CANNOT split a fraction whose denominator is a sum. 2/(x+1) ≠ 2/x + 2/1. Test: x=1: LHS=2/2=1. RHS=2/1+2=4. Not equal!</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> a/(b+c) ≠ a/b + a/c. This is one of the most common algebraic errors! Only split if the NUMERATOR is a sum: (a+b)/c = a/c + b/c.</div></div>
+
+    <!-- U5 Ex 8 -->
+    <div class="ex-card" id="u5q8">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">8</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Ratio problem: A:B = 3:5, total = 40. Find B.</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">Step 1: Total parts = 3 + 5 = <input class="fill-input" id="u5q8-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: Each part = 40 ÷ <input class="fill-input" id="u5q8-b2" placeholder="?"> = <input class="fill-input" id="u5q8-b3" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: B = 5 parts × <input class="fill-input" id="u5q8-b4" placeholder="value per part"> = <input class="fill-input" id="u5q8-b5" placeholder="B = ?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q8',['u5q8-b1','u5q8-b2','u5q8-b3','u5q8-b4','u5q8-b5'])">✅ Check Answer</button>
+      <div id="u5q8-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Total parts=8. Each part=40÷8=5. B=5×5=25. A=3×5=15. Check: 15+25=40 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Ratio problems: total parts = sum of ratio. Find one part's value, then multiply by each ratio number.</div></div>
+
+    <!-- U5 Ex 9 -->
+    <div class="ex-card" id="u5q9">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">9</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">% + Algebra: x increased by 40% gives 70. Find x.</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>x + 40 = 70<br>x = 70 − 40<br>x = <strong>30</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>x + 40% of x = 70<br>1.4x = 70<br>x = 70/1.4<br>x = <strong>50</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u5q9','A')"><input type="radio" name="u5q9">Solution A (x = 30)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u5q9','B')"><input type="radio" name="u5q9">Solution B (x = 50)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u5q9')">✅ Check Answer</button>
+      <div id="u5q9-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution B. "Increased by 40%" means add 40% OF x, not add the number 40. x + 0.4x = 1.4x = 70 → x = 50.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> "Increased by 40%" = multiplied by 1.4. So 1.4x = 70, not x + 40 = 70.</div></div>
+
+    <!-- U5 Ex 10 -->
+    <div class="ex-card" id="u5q10">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#7c3aed">10</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Integers + Fractions: Evaluate: −3/4 + 5/−8</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong: −3/4 + 5/−8 = (−3+5)/(4+(−8)) = 2/(−4) = −1/2 ❌</strong>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Step 1: Rewrite 5/−8 = <input class="fill-input" id="u5q10-b1" placeholder="?"></span>
+        <span class="step-line fill-line">Step 2: −3/4 + (−5/8). LCM(4,8) = <input class="fill-input" id="u5q10-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Step 3: −3/4 = <input class="fill-input" id="u5q10-b3" placeholder="?/8"></span>
+        <span class="step-line fill-line">Step 4: −6/8 + (−5/8) = <input class="fill-input" id="u5q10-b4" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q10',['u5q10-b1','u5q10-b2','u5q10-b3','u5q10-b4'])">✅ Check Answer</button>
+      <div id="u5q10-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">5/−8 = −5/8. LCM=8. −3/4=−6/8. −6/8+(−5/8)=−11/8.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> A negative denominator: move the negative sign to the numerator. 5/−8 = −5/8. Then add fractions normally with a common denominator.</div></div>
+
+    <div class="section-label label-hard">🔴 Section C — Grand Boss Level (Ex 11–15)</div>
+
+    <!-- U5 Ex 11 -->
+    <div class="ex-card" id="u5q11">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">11</div>
+        <div><div class="ex-type">Find the Mistake</div><div class="ex-title">All topics: If profit% = 25% and SP = ₹75, find CP</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Find CP given SP=₹75, profit=25%</strong><br>
+        <span class="step-line">Step 1: Profit = 25% of SP = 0.25 × 75 = ₹18.75</span>
+        <span class="step-line">Step 2: CP = SP − Profit = 75 − 18.75 = ₹56.25</span>
+      </div>
+      <div class="step-selector">
+        <button class="step-btn" onclick="selectStep(this,'u5q11',0)"><span class="step-icon">1️⃣</span> Step 1: Profit = 25% of SP = 0.25 × 75 = ₹18.75</button>
+        <button class="step-btn" onclick="selectStep(this,'u5q11',1)"><span class="step-icon">2️⃣</span> Step 2: CP = SP − Profit = 75 − 18.75 = ₹56.25</button>
+      </div>
+      <button class="check-btn" onclick="checkFTM('u5q11')">✅ Check Answer</button>
+      <div id="u5q11-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Step 1 wrong. Profit% is on CP. SP = CP × 1.25 = 75. So CP = 75/1.25 = ₹60. Check: 25% of 60 = 15. SP = 60+15=75 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> Profit% and Loss% are ALWAYS calculated on Cost Price, not Selling Price. SP = CP × (1 + profit%).</div></div>
+
+    <!-- U5 Ex 12 -->
+    <div class="ex-card" id="u5q12">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">12</div>
+        <div><div class="ex-type">True or False</div><div class="ex-title">Solving: (x/2) − (x/3) = 1 gives x = 6</div></div>
+      </div>
+      <div class="problem-box">
+        <strong>Solve: x/2 − x/3 = 1</strong><br>
+        <span class="step-line">LCM=6: 3x/6 − 2x/6 = 1</span>
+        <span class="step-line">x/6 = 1 → x = 6</span>
+      </div>
+      <div class="tf-group">
+        <button class="tf-btn" onclick="selectTF(this,'u5q12','true')">✅ True — x = 6 is correct</button>
+        <button class="tf-btn" onclick="selectTF(this,'u5q12','false')">❌ False — x = 6 is wrong</button>
+      </div>
+      <button class="check-btn" onclick="checkTF('u5q12')">✅ Check Answer</button>
+      <div id="u5q12-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">TRUE. x/2−x/3 = 3x/6−2x/6 = x/6 = 1 → x = 6. Verify: 6/2−6/3 = 3−2 = 1 ✓</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When solving equations with fractions, find the LCM of denominators. Multiply through to eliminate fractions, then solve.</div></div>
+
+    <!-- U5 Ex 13 -->
+    <div class="ex-card" id="u5q13">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">13</div>
+        <div><div class="ex-type">Which One is Right?</div><div class="ex-title">Combined: Evaluate [−2(3/4 − 1/2) + 15%] × 4</div></div>
+      </div>
+      <div class="sol-grid">
+        <div class="sol-box"><h4>Solution A</h4>3/4−1/2 = 1/4<br>−2×1/4 = −1/2<br>15% = 0.15<br>−0.5+0.15 = −0.35<br>×4 = <strong>−1.4</strong></div>
+        <div class="sol-box"><h4>Solution B</h4>3/4−1/2 = 1/4<br>−2+1/4 = −7/4<br>15% = 0.15<br>−1.75+0.15 = −1.6<br>×4 = <strong>−6.4</strong></div>
+      </div>
+      <div class="radio-group">
+        <label class="radio-btn" data-val="A" onclick="selectRadio(this,'u5q13','A')"><input type="radio" name="u5q13">Solution A (−1.4)</label>
+        <label class="radio-btn" data-val="B" onclick="selectRadio(this,'u5q13','B')"><input type="radio" name="u5q13">Solution B (−6.4)</label>
+      </div>
+      <button class="check-btn" onclick="checkRadio('u5q13')">✅ Check Answer</button>
+      <div id="u5q13-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">Solution A. Solution B made an error: −2(1/4) means −2 MULTIPLIED by 1/4 = −1/2, not −2 + 1/4 = −7/4.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When a number sits directly outside a bracket, it multiplies the contents. −2(1/4) = −2 × 1/4 = −1/2.</div></div>
+
+    <!-- U5 Ex 14 -->
+    <div class="ex-card" id="u5q14">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">14</div>
+        <div><div class="ex-type">Fill the Missing Step</div><div class="ex-title">Multi-step: Arjun has ₹x, spends 1/3, earns ₹50. Now has 80% of original. Find x.</div></div>
+      </div>
+      <div class="problem-box">
+        <span class="step-line fill-line">After spending 1/3: left = x − x/3 = <input class="fill-input" id="u5q14-b1" placeholder="?x/3"></span>
+        <span class="step-line fill-line">After earning ₹50: <input class="fill-input" id="u5q14-b2" placeholder="?"> + 50</span>
+        <span class="step-line fill-line">Equation: 2x/3 + 50 = <input class="fill-input" id="u5q14-b3" placeholder="80% of x"></span>
+        <span class="step-line fill-line">Solve: multiply all by 15: <input class="fill-input" id="u5q14-b4" placeholder="equation"></span>
+        <span class="step-line fill-line">x = <input class="fill-input" id="u5q14-b5" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q14',['u5q14-b1','u5q14-b2','u5q14-b3','u5q14-b4','u5q14-b5'])">✅ Check Answer</button>
+      <div id="u5q14-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">2x/3+50=0.8x → ×15: 10x+750=12x → 750=2x → x=375</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> For equations mixing fractions and decimals, multiply everything by the LCM to clear all fractions first.</div></div>
+
+    <!-- U5 Ex 15 -->
+    <div class="ex-card" id="u5q15">
+      <div class="ex-card-header">
+        <div class="ex-num" style="background:#991b1b">15</div>
+        <div><div class="ex-type">Fix &amp; Solve</div><div class="ex-title">Ultimate: Negative integer n satisfies 2(n + 1/2) + 50% of n = −9. Find n.</div></div>
+      </div>
+      <div class="problem-box has-error">
+        <strong>Wrong setup: 2n + 1/2 + 0.5n = −9 ❌</strong><br>
+        <span class="step-line">(Did not expand 2(n + 1/2) properly)</span>
+      </div>
+      <div class="problem-box" style="border-left-color:var(--mc-green)">
+        <span class="step-line fill-line">Expand 2(n + 1/2): 2n + <input class="fill-input" id="u5q15-b1" placeholder="2×½"></span>
+        <span class="step-line fill-line">50% of n = <input class="fill-input" id="u5q15-b2" placeholder="?"></span>
+        <span class="step-line fill-line">Equation: 2n + 1 + 0.5n = −9 → <input class="fill-input" id="u5q15-b3" placeholder="combine n terms"> = <input class="fill-input" id="u5q15-b4" placeholder="?"></span>
+        <span class="step-line fill-line">n = <input class="fill-input" id="u5q15-b5" placeholder="?"></span>
+      </div>
+      <button class="check-btn" onclick="checkFill('u5q15',['u5q15-b1','u5q15-b2','u5q15-b3','u5q15-b4','u5q15-b5'])">✅ Check Answer</button>
+      <div id="u5q15-result"></div>
+      <button class="hint-btn" onclick="toggleHint(this)">Show hint</button>
+      <div class="hint-reveal">2(n + 1/2) = 2n + 1. 50% of n = 0.5n. Combine like terms: 2.5n + 1 = −9 → 2.5n = −10 → n = −4.</div>
+    </div>
+    <div class="tip-box"><span class="tip-icon">💡</span><div><strong>Tip:</strong> When an equation contains mixed forms (brackets, fractions, and percentages), convert everything to a consistent algebraic form first, then collect like terms and isolate the variable.</div></div>
+
+    <div class="complete-banner">
+      <div class="trophy">🏆</div>
+      <h3>You completed all 5 units!</h3>
+      <p>75 exercises done. You've trained your eyes to spot errors, fix broken logic, and verify every step. That's what real mathematical maturity looks like!</p>
+    </div>
+
+    <button class="submit-unit-btn" id="submit-u5" onclick="submitUnit(5)">📊 Submit Unit 5 &amp; Save Final Score</button>
+  </div>
+
+</div><!-- wb-wrapper -->
+</div><!-- screen-workbook -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Unit Completion Modal -->
+<div id="completion-modal" class="completion-modal" style="display:none">
+  <div class="completion-backdrop" onclick="closeCompletionModal()"></div>
+  <div class="completion-card">
+    <div class="completion-emoji" id="completion-emoji">🎉</div>
+    <h2 id="completion-title">Unit Complete!</h2>
+    <p class="completion-subtitle" id="completion-subtitle">Your score has been saved to your profile.</p>
+    <div class="completion-score-badge" id="completion-score-badge">Score: 0 / 15</div>
+    <div class="completion-actions">
+      <button type="button" class="btn-comp btn-review" onclick="closeCompletionModal()">🔍 Review Answers</button>
+      <button type="button" class="btn-comp btn-next" id="btn-next-unit" onclick="goToNextUnit()">Next Unit →</button>
+      <a href="/dashboard" class="btn-comp btn-dash">📊 Go to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/mistake_correction.js') }}"></script>
+</body>
+</html>

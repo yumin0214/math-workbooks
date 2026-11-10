@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculation Speed Booster Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/speed_booster.css') }}">
+</head>
+<body>
+
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<div class="screen active" id="screen-auth">
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="wb-cover-emoji">⚡</div>
+      <h1>Calculation Speed<br>Booster Workbook</h1>
+      <p>Daily 10–15 minute drills · Grades 6–10</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="login-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="login-password" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">⚡ Start Practising</button>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="form-signup" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" id="su-fname" placeholder="Riya">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" id="su-lname" placeholder="Shah">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Grade</label>
+          <select class="form-select" id="su-grade">
+            <option value="">Select</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input class="form-input" type="number" id="su-age" placeholder="12" min="10" max="18">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">School Name</label>
+        <input class="form-input" type="text" id="su-school" placeholder="DPS Ahmedabad">
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input class="form-input" type="text" id="su-city" placeholder="Surat">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="su-email" placeholder="your@email.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="su-password" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm</label>
+          <input class="form-input" type="password" id="su-confirm" placeholder="••••••••">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="doSignup()">🚀 Create My Account</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ WORKBOOK SCREEN ═══════════════ -->
+<div class="screen" id="screen-workbook">
+<div class="wb-wrapper">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="top-bar-avatar" id="tb-avatar">R</div>
+      <div>
+        <div class="top-bar-name" id="tb-name">Student</div>
+        <div class="top-bar-grade" id="tb-grade">Grade 6 · Surat</div>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <span class="streak-badge" id="tb-streak">🔥 0 day streak</span>
+      <a href="/dashboard" style="background:var(--wb-bg);border:1.5px solid var(--wb-border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--wb-muted);text-decoration:none;transition:all .15s" onmouseover="this.style.borderColor='#1a56db';this.style.color='#1a56db'" onmouseout="this.style.borderColor='';this.style.color=''">← Dashboard</a>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Cover -->
+  <div class="wb-cover">
+    <div class="wb-cover-emoji">⚡</div>
+    <h1>Calculation Speed<br>Booster Workbook</h1>
+    <p class="tagline">Daily 10–15 minute drills to calculate faster and smarter</p>
+    <div class="badges">
+      <span class="wb-badge" id="cover-grade">Grade 6</span>
+      <span class="wb-badge">5 Units</span>
+      <span class="wb-badge">Auto Fresh Questions</span>
+      <span class="wb-badge">Digital Fillable</span>
+    </div>
+  </div>
+
+  <!-- New session button -->
+  <button class="new-session-btn" onclick="generateAllQuestions()">
+    ⚡ Generate Today's Fresh Questions
+  </button>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-label">📊 My Progress — Best Scores</div>
+    <div class="progress-bars" id="progress-bars">
+      <div class="prog-row"><span class="prog-name">Unit 1</span><div class="prog-bar-outer"><div class="prog-bar-inner" style="width:0%;background:#1a56db"></div></div><span class="prog-score" id="ps1">0/20</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 2</span><div class="prog-bar-outer"><div class="prog-bar-inner" style="width:0%;background:#7c3aed"></div></div><span class="prog-score" id="ps2">0/20</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 3</span><div class="prog-bar-outer"><div class="prog-bar-inner" style="width:0%;background:#059669"></div></div><span class="prog-score" id="ps3">0/20</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 4</span><div class="prog-bar-outer"><div class="prog-bar-inner" style="width:0%;background:#dc2626"></div></div><span class="prog-score" id="ps4">0/20</span></div>
+      <div class="prog-row"><span class="prog-name">Unit 5</span><div class="prog-bar-outer"><div class="prog-bar-inner" style="width:0%;background:#d97706"></div></div><span class="prog-score" id="ps5">0/30</span></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="wb-toc">
+    <h2>📚 Table of Contents</h2>
+    <div class="toc-item" onclick="showUnit(0)"><div class="toc-dot" style="background:#1a56db">1</div><span>Mental Math Foundations</span></div>
+    <div class="toc-item" onclick="showUnit(1)"><div class="toc-dot" style="background:#7c3aed">2</div><span>Multiplication Tables &amp; Patterns</span></div>
+    <div class="toc-item" onclick="showUnit(2)"><div class="toc-dot" style="background:#059669">3</div><span>Fractions, Decimals &amp; Percentages</span></div>
+    <div class="toc-item" onclick="showUnit(3)"><div class="toc-dot" style="background:#dc2626">4</div><span>Algebra Speed Drills</span></div>
+    <div class="toc-item" onclick="showUnit(4)"><div class="toc-dot" style="background:#d97706">5</div><span>Mixed Speed Challenge</span></div>
+  </div>
+
+  <!-- Unit nav -->
+  <div class="unit-nav">
+    <button class="unit-tab active" style="background:#1a56db;color:white" onclick="showUnit(0)">Unit 1</button>
+    <button class="unit-tab" onclick="showUnit(1)">Unit 2</button>
+    <button class="unit-tab" onclick="showUnit(2)">Unit 3</button>
+    <button class="unit-tab" onclick="showUnit(3)">Unit 4</button>
+    <button class="unit-tab" onclick="showUnit(4)">Unit 5</button>
+  </div>
+
+  <!-- ═══ UNIT 1 ═══ -->
+  <div class="unit-page active" id="unit-0">
+    <div class="unit-header" style="background:linear-gradient(135deg,#1a56db,#2563eb)">
+      <div class="unit-label">Unit 1 of 5</div>
+      <h2>Mental Math Foundations</h2>
+      <div class="unit-sub">Addition, subtraction &amp; multiplication shortcuts</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#1a56db"><div class="section-icon" style="background:#dbeafe">📖</div> Concept Note</div>
+      <div class="concept-box">Mental math means calculating in your head — no pen, no calculator! The trick is to break numbers into easy parts. For addition, round up to the nearest 10 first. For subtraction, think of the difference between numbers. For multiplication, use doubling, halving, or breaking numbers apart. With daily practice, your brain learns these shortcuts automatically!</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#1a56db"><div class="section-icon" style="background:#dbeafe">✏️</div> Worked Examples</div>
+      <div class="example-row">
+        <div class="example-box"><div class="ex-label">Example 1 — Addition</div><div class="ex-q">48 + 37 = ?</div><div class="ex-steps">Step 1: 48 + 2 = 50<br>Step 2: 37 − 2 = 35<br>Step 3: 50 + 35 = 85</div><div class="ex-ans" style="color:#1a56db">Answer: 85 ✓</div></div>
+        <div class="example-box"><div class="ex-label">Example 2 — Multiply by 9</div><div class="ex-q">7 × 9 = ?</div><div class="ex-steps">Trick: 7×10 = 70<br>Then: 70 − 7 = 63<br>(×10 minus one set)</div><div class="ex-ans" style="color:#1a56db">Answer: 63 ✓</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">⏱</div> Timed Drill — 5 Minute Timer (20 Questions)</div>
+      <div class="drill-timer-bar" style="background:linear-gradient(90deg,#1a56db,#7c3aed)">
+        <span class="timer-label">⏱ 5:00 Timer</span>
+        <span class="timer-display" id="t1-display">5:00</span>
+        <button class="timer-btn" onclick="toggleTimer('t1')">Start</button>
+      </div>
+      <div class="drill-grid" id="drill1"></div>
+      <button class="check-btn" onclick="checkAnswers(1)">✅ Check My Answers</button>
+      <div class="score-box">
+        <div class="score-label">My Drill Score</div>
+        <div class="score-row"><span class="score-val" id="score1-val">–</span><span class="score-sep">/</span><span class="score-total">20</span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#d97706"><div class="section-icon" style="background:#fef3c7">💡</div> Trick of the Day</div>
+      <div class="trick-box">
+        <div class="trick-title">⚡ Multiply by 5 in a Flash!</div>
+        <div class="trick-content">To multiply any number by 5 — just multiply by 10 and divide by 2. Twice as easy!</div>
+        <div class="trick-example">48 × 5 = ?<br>Step 1: 48 × 10 = 480<br>Step 2: 480 ÷ 2 = 240 ✓<br><br>Try: 36 × 5 = 360 ÷ 2 = 180 ✓</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title"><div class="section-icon" style="background:#f0fdf4">📊</div> Speed Log</div>
+      <div class="speed-log">
+        <div class="speed-log-title">📅 Daily Record</div>
+        <div class="log-row">Today's Score: <strong id="log1-score">–</strong> / 20</div>
+        <div class="log-row">Personal Best: <strong id="log1-best">–</strong> / 20</div>
+        <p style="font-size:12px;color:var(--wb-muted);margin-top:10px;margin-bottom:8px">How did you feel today?</p>
+        <div class="log-feel">
+          <div class="feel-btn" onclick="selectFeel(this)">😓 Tough</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😐 Okay</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😊 Good</div>
+          <div class="feel-btn" onclick="selectFeel(this)">🔥 Amazing</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card answer-key" id="ak1" style="display:none">
+      <p>🎯 Answer Key — Unit 1 Timed Drill</p>
+      <p id="ak1-content"></p>
+    </div>
+  </div>
+
+  <!-- ═══ UNIT 2 ═══ -->
+  <div class="unit-page" id="unit-1">
+    <div class="unit-header" style="background:linear-gradient(135deg,#7c3aed,#9333ea)">
+      <div class="unit-label">Unit 2 of 5</div>
+      <h2>Multiplication Tables &amp; Patterns</h2>
+      <div class="unit-sub">Tables 1–20, square numbers &amp; quick recognition tricks</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#7c3aed"><div class="section-icon" style="background:#ede9fe">📖</div> Concept Note</div>
+      <div class="concept-box purple">Tables are the foundation of all fast calculation. If you know your tables up to 20 by heart, you can solve most problems in seconds! Notice patterns: tables of 5 always end in 0 or 5. Tables of 9 have digits that always add up to 9. Square numbers (1, 4, 9, 16, 25...) follow a beautiful pattern — n×n. Spot these patterns and your brain retrieves answers instantly!</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#7c3aed"><div class="section-icon" style="background:#ede9fe">✏️</div> Worked Examples</div>
+      <div class="example-row">
+        <div class="example-box"><div class="ex-label">Example 1 — Table of 15</div><div class="ex-q">15 × 7 = ?</div><div class="ex-steps">15 = 10 + 5<br>10×7 = 70<br>5×7 = 35<br>70+35 = 105</div><div class="ex-ans" style="color:#7c3aed">Answer: 105 ✓</div></div>
+        <div class="example-box"><div class="ex-label">Example 2 — Square Number</div><div class="ex-q">14² = ?</div><div class="ex-steps">14² = (10+4)²<br>= 100+80+16<br>= 196</div><div class="ex-ans" style="color:#7c3aed">Answer: 196 ✓</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">⏱</div> Timed Drill — 5 Minute Timer (20 Questions)</div>
+      <div class="drill-timer-bar" style="background:linear-gradient(90deg,#7c3aed,#9333ea)">
+        <span class="timer-label">⏱ 5:00 Timer</span>
+        <span class="timer-display" id="t2-display">5:00</span>
+        <button class="timer-btn" onclick="toggleTimer('t2')">Start</button>
+      </div>
+      <div class="drill-grid" id="drill2"></div>
+      <button class="check-btn" onclick="checkAnswers(2)">✅ Check My Answers</button>
+      <div class="score-box">
+        <div class="score-label">My Drill Score</div>
+        <div class="score-row"><span class="score-val" id="score2-val">–</span><span class="score-sep">/</span><span class="score-total">20</span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#d97706"><div class="section-icon" style="background:#fef3c7">💡</div> Trick of the Day</div>
+      <div class="trick-box">
+        <div class="trick-title">⚡ Table of 11 for 2-digit numbers!</div>
+        <div class="trick-content">For 11 × any 2-digit number: add the two digits and put the result in the middle!</div>
+        <div class="trick-example">11 × 35 → 3+5=8 → 385 ✓<br>11 × 72 → 7+2=9 → 792 ✓<br>(If sum ≥10, carry the 1 left!)</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title"><div class="section-icon" style="background:#f5f3ff">📊</div> Speed Log</div>
+      <div class="speed-log">
+        <div class="speed-log-title">📅 Daily Record</div>
+        <div class="log-row">Today's Score: <strong id="log2-score">–</strong> / 20</div>
+        <div class="log-row">Personal Best: <strong id="log2-best">–</strong> / 20</div>
+        <p style="font-size:12px;color:var(--wb-muted);margin-top:10px;margin-bottom:8px">How did you feel today?</p>
+        <div class="log-feel">
+          <div class="feel-btn" onclick="selectFeel(this)">😓 Tough</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😐 Okay</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😊 Good</div>
+          <div class="feel-btn" onclick="selectFeel(this)">🔥 Amazing</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card answer-key" id="ak2" style="display:none">
+      <p>🎯 Answer Key — Unit 2 Timed Drill</p>
+      <p id="ak2-content"></p>
+    </div>
+  </div>
+
+  <!-- ═══ UNIT 3 ═══ -->
+  <div class="unit-page" id="unit-2">
+    <div class="unit-header" style="background:linear-gradient(135deg,#059669,#10b981)">
+      <div class="unit-label">Unit 3 of 5</div>
+      <h2>Fractions, Decimals &amp; Percentages</h2>
+      <div class="unit-sub">Conversion speed &amp; quick estimation</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#059669"><div class="section-icon" style="background:#d1fae5">📖</div> Concept Note</div>
+      <div class="concept-box green">Fractions, decimals, and percentages are three ways of saying the same thing. Know these by memory: 1/4=0.25=25%, 1/2=0.5=50%, 3/4=0.75=75%. For percentages, break it down: 10% is dividing by 10, then build from there — 30%=3×10%, 15%=10%+5%. Estimation = get close fast by rounding numbers!</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#059669"><div class="section-icon" style="background:#d1fae5">✏️</div> Worked Examples</div>
+      <div class="example-row">
+        <div class="example-box"><div class="ex-label">Example 1 — % Shortcut</div><div class="ex-q">35% of 80 = ?</div><div class="ex-steps">10% of 80 = 8<br>30% = 3×8 = 24<br>5% = 8÷2 = 4<br>35% = 24+4 = 28</div><div class="ex-ans" style="color:#059669">Answer: 28 ✓</div></div>
+        <div class="example-box"><div class="ex-label">Example 2 — Fraction to %</div><div class="ex-q">3/8 as % = ?</div><div class="ex-steps">1/8 = 12.5%<br>so 3/8 = 3×12.5%<br>= 37.5%</div><div class="ex-ans" style="color:#059669">Answer: 37.5% ✓</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">⏱</div> Timed Drill — 5 Minute Timer (20 Questions)</div>
+      <div class="drill-timer-bar" style="background:linear-gradient(90deg,#059669,#10b981)">
+        <span class="timer-label">⏱ 5:00 Timer</span>
+        <span class="timer-display" id="t3-display">5:00</span>
+        <button class="timer-btn" onclick="toggleTimer('t3')">Start</button>
+      </div>
+      <div class="drill-grid" id="drill3"></div>
+      <button class="check-btn" onclick="checkAnswers(3)">✅ Check My Answers</button>
+      <div class="score-box">
+        <div class="score-label">My Drill Score</div>
+        <div class="score-row"><span class="score-val" id="score3-val">–</span><span class="score-sep">/</span><span class="score-total">20</span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#d97706"><div class="section-icon" style="background:#fef3c7">💡</div> Trick of the Day</div>
+      <div class="trick-box">
+        <div class="trick-title">⚡ Flip the numbers for easy %!</div>
+        <div class="trick-content">x% of y = y% of x. If a % looks hard, just swap the numbers!</div>
+        <div class="trick-example">8% of 25 = 25% of 8 = 8÷4 = 2 ✓<br>4% of 75 = 75% of 4 = 3 ✓</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title"><div class="section-icon" style="background:#f0fdf4">📊</div> Speed Log</div>
+      <div class="speed-log">
+        <div class="speed-log-title">📅 Daily Record</div>
+        <div class="log-row">Today's Score: <strong id="log3-score">–</strong> / 20</div>
+        <div class="log-row">Personal Best: <strong id="log3-best">–</strong> / 20</div>
+        <p style="font-size:12px;color:var(--wb-muted);margin-top:10px;margin-bottom:8px">How did you feel today?</p>
+        <div class="log-feel">
+          <div class="feel-btn" onclick="selectFeel(this)">😓 Tough</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😐 Okay</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😊 Good</div>
+          <div class="feel-btn" onclick="selectFeel(this)">🔥 Amazing</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card answer-key" id="ak3" style="display:none">
+      <p>🎯 Answer Key — Unit 3 Timed Drill</p>
+      <p id="ak3-content"></p>
+    </div>
+  </div>
+
+  <!-- ═══ UNIT 4 ═══ -->
+  <div class="unit-page" id="unit-3">
+    <div class="unit-header" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
+      <div class="unit-label">Unit 4 of 5</div>
+      <h2>Algebra Speed Drills</h2>
+      <div class="unit-sub">Simple equations, substitution &amp; quick solving</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">📖</div> Concept Note</div>
+      <div class="concept-box red">Algebra is just arithmetic with a mystery number! When you see x+5=12, ask: "What do I add to 5 to get 12?" — the answer is 7. For 3x=24, ask: "3 times what gives 24?" — that's 8. Isolate the variable by doing the opposite operation on both sides. Practice enough and you'll solve simple equations in under 5 seconds!</div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">✏️</div> Worked Examples</div>
+      <div class="example-row">
+        <div class="example-box"><div class="ex-label">Example 1 — Simple Equation</div><div class="ex-q">4x + 7 = 31</div><div class="ex-steps">4x = 31−7 = 24<br>x = 24÷4 = 6<br>Check: 4(6)+7=31 ✓</div><div class="ex-ans" style="color:#dc2626">Answer: x = 6 ✓</div></div>
+        <div class="example-box"><div class="ex-label">Example 2 — Substitution</div><div class="ex-q">a=3, b=5: 2a+3b</div><div class="ex-steps">= 2(3)+3(5)<br>= 6+15 = 21</div><div class="ex-ans" style="color:#dc2626">Answer: 21 ✓</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">⏱</div> Timed Drill — 5 Minute Timer (20 Questions)</div>
+      <div class="drill-timer-bar" style="background:linear-gradient(90deg,#dc2626,#ef4444)">
+        <span class="timer-label">⏱ 5:00 Timer</span>
+        <span class="timer-display" id="t4-display">5:00</span>
+        <button class="timer-btn" onclick="toggleTimer('t4')">Start</button>
+      </div>
+      <div class="drill-grid" id="drill4"></div>
+      <button class="check-btn" onclick="checkAnswers(4)">✅ Check My Answers</button>
+      <div class="score-box">
+        <div class="score-label">My Drill Score</div>
+        <div class="score-row"><span class="score-val" id="score4-val">–</span><span class="score-sep">/</span><span class="score-total">20</span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#d97706"><div class="section-icon" style="background:#fef3c7">💡</div> Trick of the Day</div>
+      <div class="trick-box">
+        <div class="trick-title">⚡ Balance Method — Picture a Weighing Scale!</div>
+        <div class="trick-content">Think of an equation as a scale. Whatever you do to one side, do exactly the same to the other side.</div>
+        <div class="trick-example">5x − 10 = 20<br>Add 10 both sides: 5x = 30<br>Divide by 5: x = 6 ✓</div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title"><div class="section-icon" style="background:#fff1f2">📊</div> Speed Log</div>
+      <div class="speed-log">
+        <div class="speed-log-title">📅 Daily Record</div>
+        <div class="log-row">Today's Score: <strong id="log4-score">–</strong> / 20</div>
+        <div class="log-row">Personal Best: <strong id="log4-best">–</strong> / 20</div>
+        <p style="font-size:12px;color:var(--wb-muted);margin-top:10px;margin-bottom:8px">How did you feel today?</p>
+        <div class="log-feel">
+          <div class="feel-btn" onclick="selectFeel(this)">😓 Tough</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😐 Okay</div>
+          <div class="feel-btn" onclick="selectFeel(this)">😊 Good</div>
+          <div class="feel-btn" onclick="selectFeel(this)">🔥 Amazing</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card answer-key" id="ak4" style="display:none">
+      <p>🎯 Answer Key — Unit 4 Timed Drill</p>
+      <p id="ak4-content"></p>
+    </div>
+  </div>
+
+  <!-- ═══ UNIT 5 ═══ -->
+  <div class="unit-page" id="unit-4">
+    <div class="unit-header" style="background:linear-gradient(135deg,#f59e0b,#dc2626)">
+      <div class="unit-label">Unit 5 of 5 — Final Challenge</div>
+      <h2>🏆 Mixed Speed Challenge</h2>
+      <div class="unit-sub">All 4 topics combined · 30 questions · Beat your personal best!</div>
+    </div>
+    <div class="section-card" style="border:2px dashed #f59e0b;background:#fffbeb">
+      <div class="section-title" style="color:#92400e"><div class="section-icon" style="background:#fef3c7">⏱</div> Set Your Own Timer</div>
+      <p style="font-size:13px;color:#78350f;margin-bottom:8px">Suggested: Beginner = 15 min · Intermediate = 10 min · Advanced = 7 min</p>
+      <div class="drill-timer-bar" style="background:linear-gradient(90deg,#f59e0b,#dc2626)">
+        <span class="timer-label">⏱ Custom Timer</span>
+        <span class="timer-display" id="t5-display">10:00</span>
+        <button class="timer-btn" onclick="toggleTimer('t5')">Start</button>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#1a56db"><div class="section-icon" style="background:#dbeafe">🧮</div> Part A — Mental Math (Q1–8)</div>
+      <div class="drill-grid" id="drill5a"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#7c3aed"><div class="section-icon" style="background:#ede9fe">✖️</div> Part B — Tables &amp; Squares (Q9–16)</div>
+      <div class="drill-grid" id="drill5b"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#059669"><div class="section-icon" style="background:#d1fae5">%</div> Part C — Fractions &amp; % (Q17–23)</div>
+      <div class="drill-grid" id="drill5c"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="color:#dc2626"><div class="section-icon" style="background:#fee2e2">x</div> Part D — Algebra (Q24–30)</div>
+      <div class="drill-grid" id="drill5d"></div>
+    </div>
+    <div class="section-card" style="border:2px solid #f59e0b;background:#fffbeb">
+      <div class="section-title" style="color:#92400e">🏆 Final Score</div>
+      <button class="check-btn" onclick="checkAnswers(5)" style="background:linear-gradient(135deg,#f59e0b,#dc2626)">✅ Check All Answers</button>
+      <div class="score-box" style="border-color:#f59e0b">
+        <div class="score-label">Mixed Challenge Score</div>
+        <div class="score-row"><span class="score-val" id="score5-val">–</span><span class="score-sep">/</span><span class="score-total">30</span></div>
+      </div>
+      <p style="font-size:12px;color:var(--wb-muted);margin-top:12px;margin-bottom:8px">How did you feel about the challenge?</p>
+      <div class="log-feel">
+        <div class="feel-btn" onclick="selectFeel(this)">😓 Tough</div>
+        <div class="feel-btn" onclick="selectFeel(this)">😐 Okay</div>
+        <div class="feel-btn" onclick="selectFeel(this)">😊 Good</div>
+        <div class="feel-btn" onclick="selectFeel(this)">🔥 Amazing</div>
+      </div>
+    </div>
+    <div class="section-card answer-key" id="ak5" style="display:none">
+      <p>🎯 Answer Key — Mixed Challenge</p>
+      <p id="ak5-content"></p>
+    </div>
+    <div style="background:linear-gradient(135deg,#1a56db,#7c3aed);border-radius:16px;padding:24px;text-align:center;color:white;margin-top:8px">
+      <div style="font-size:40px;margin-bottom:10px">🎉</div>
+      <p style="font-size:18px;font-weight:900;margin-bottom:8px">You completed the workbook!</p>
+      <p style="font-size:13px;opacity:0.85;margin-bottom:16px">You are now faster, sharper, and more confident with numbers. Keep practising daily — champions are built one drill at a time!</p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700">⚡ Generate new questions daily</div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700">🎯 Beat your own records</div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700">🏆 Aim for 30/30!</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end wb-wrapper -->
+</div><!-- end screen-workbook -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Unit Completion Modal -->
+<div id="completion-modal" class="completion-modal" style="display:none">
+  <div class="completion-backdrop" onclick="closeCompletionModal()"></div>
+  <div class="completion-card">
+    <div class="completion-emoji" id="completion-emoji">🎉</div>
+    <h2 id="completion-title">Unit Complete!</h2>
+    <p class="completion-subtitle" id="completion-subtitle">Your score has been saved to your profile.</p>
+    <div class="completion-score-badge" id="completion-score-badge">Score: 0 / 20</div>
+    <div class="completion-actions">
+      <button type="button" class="btn-comp btn-review" onclick="closeCompletionModal()">🔍 Review Answers</button>
+      <button type="button" class="btn-comp btn-next" id="btn-next-unit" onclick="goToNextUnit()">Next Unit →</button>
+      <a href="/dashboard" class="btn-comp btn-dash">📊 Go to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/speed_booster.js') }}"></script>
+</body>
+</html>

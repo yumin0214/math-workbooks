@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeedCalc — AI-Powered Maths Practice for Grades 6–10</title>
+<meta name="description" content="SpeedCalc gives Grades 6–10 students daily AI-powered maths drills with instant grading, mistake correction, and personalised performance reports. Free for the first 1,000 students.">
+<meta property="og:title" content="SpeedCalc — Practice Smarter. Score Higher.">
+<meta property="og:description" content="AI-powered maths practice for Grades 6–10. Two focused workbooks, instant auto-grading, and personalised AI reports. Free for the first 1,000 students.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-icon">⚡</div>
+    <span class="nav-logo-text">Speed<span>Calc</span></span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#workbooks">Workbooks</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+    <a class="nav-cta" href="/login">Start Free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      🎉 Early Access — Free for first 1,000 students
+    </div>
+    <h1 class="hero-title">
+      <span class="t1">Practice Smarter.</span>
+      <span class="t2">Score Higher.</span>
+    </h1>
+    <p class="hero-desc">
+      AI-powered maths practice for Grades 6–10. Daily drills that build real speed, fix real mistakes, and track real progress.
+    </p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="/login">🚀 Claim Your Free Access</a>
+      <a class="btn-secondary" href="#demo">See How It Works ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-icon" style="background:#eff6ff">📚</div>
+        <div><div class="hstat-label">Workbooks</div><div class="hstat-val">2 Available</div></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-icon" style="background:#f0fdf4">🎯</div>
+        <div><div class="hstat-label">Questions / Workbook</div><div class="hstat-val">110+</div></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-icon" style="background:#fef3c7">⏱</div>
+        <div><div class="hstat-label">Per Session</div><div class="hstat-val">10–15 min</div></div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-icon" style="background:#fdf4ff">🧠</div>
+        <div><div class="hstat-label">Reports</div><div class="hstat-val">AI-Powered</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stats-grid">
+    <div><div class="snum">2</div><div class="slabel">Workbooks Available</div></div>
+    <div><div class="snum">5</div><div class="slabel">Structured Units Each</div></div>
+    <div><div class="snum">110+</div><div class="slabel">Questions Per Workbook</div></div>
+    <div><div class="snum">100%</div><div class="slabel">Auto-Graded</div></div>
+  </div>
+</div>
+
+<!-- DEMO WALKTHROUGH -->
+<section class="section demo-bg" id="demo">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">How It Works</div>
+      <h2 class="section-title">From login to insight in 15 minutes</h2>
+      <p class="section-sub">Every session follows the same flow. No setup. No confusion. Just practice.</p>
+    </div>
+    <div class="demo-grid">
+
+      <div class="demo-steps-nav">
+        <button class="step-btn active" onclick="setStep(0)">
+          <div class="step-num">1</div>
+          <div><div class="step-title">Choose Workbook</div><div class="step-sub">Pick your practice area</div></div>
+        </button>
+        <div class="step-prog-bar"><div class="step-prog-fill" id="fill-0"></div></div>
+
+        <button class="step-btn" onclick="setStep(1)">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Questions Load</div><div class="step-sub">Fresh every session</div></div>
+        </button>
+        <div class="step-prog-bar"><div class="step-prog-fill" id="fill-1"></div></div>
+
+        <button class="step-btn" onclick="setStep(2)">
+          <div class="step-num">3</div>
+          <div><div class="step-title">Race the Timer</div><div class="step-sub">Build speed under pressure</div></div>
+        </button>
+        <div class="step-prog-bar"><div class="step-prog-fill" id="fill-2"></div></div>
+
+        <button class="step-btn" onclick="setStep(3)">
+          <div class="step-num">4</div>
+          <div><div class="step-title">Instant Grading</div><div class="step-sub">No manual checking needed</div></div>
+        </button>
+        <div class="step-prog-bar"><div class="step-prog-fill" id="fill-3"></div></div>
+
+        <button class="step-btn" onclick="setStep(4)">
+          <div class="step-num">5</div>
+          <div><div class="step-title">AI Reviews You</div><div class="step-sub">Know exactly what is next</div></div>
+        </button>
+      </div>
+
+      <div class="demo-display">
+
+        <!-- Step 1 -->
+        <div class="mockup active" id="mockup-0">
+          <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px">📚 Your Workbook Library</p>
+          <div class="m-wb-grid">
+            <div class="m-wb sel">
+              <div class="m-wb-icon">⚡</div>
+              <div class="m-wb-name">Speed Booster</div>
+              <div class="m-wb-units">5 units · 110+ questions</div>
+              <span class="m-wb-chip chip-blue">✓ Selected</span>
+            </div>
+            <div class="m-wb">
+              <div class="m-wb-icon">🔍</div>
+              <div class="m-wb-name">Mistake Correction</div>
+              <div class="m-wb-units">5 units · 75 exercises</div>
+              <span class="m-wb-chip chip-purple">Available</span>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#eff6ff,#f5f3ff);border-radius:10px;padding:11px 14px;font-size:12px;font-weight:700;color:var(--blue);margin-top:10px">
+            💡 Both workbooks included free during early access.
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="mockup" id="mockup-1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+            <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">⚡ Today's Fresh Questions</p>
+            <span style="font-size:10px;font-weight:800;color:var(--green);background:#d1fae5;padding:2px 8px;border-radius:7px">New every session</span>
+          </div>
+          <div class="m-q-row"><span class="m-q-text">48 + 37 = </span><div class="m-q-blank"></div></div>
+          <div class="m-q-row"><span class="m-q-text">7 × 9 = </span><div class="m-q-blank"></div></div>
+          <div class="m-q-row"><span class="m-q-text">125 − 48 = </span><div class="m-q-blank"></div></div>
+          <div class="m-q-row"><span class="m-q-text">15% of 80 = </span><div class="m-q-blank"></div></div>
+          <div class="m-q-row"><span class="m-q-text">3x + 7 = 22, x = </span><div class="m-q-blank"></div></div>
+          <p style="font-size:11px;font-weight:600;color:var(--muted);margin-top:8px">+ 15 more · Grade-calibrated · Auto-generated</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="mockup" id="mockup-2">
+          <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">⏱ Timed Drill — 5 Minutes</p>
+          <div class="m-timer-center">
+            <div class="m-timer-lbl">Time Remaining</div>
+            <div class="m-timer-val">2:47</div>
+            <div class="m-timer-bar-outer"><div class="m-timer-bar-inner"></div></div>
+            <div style="font-size:12px;font-weight:700;color:var(--red)">⚠️ Speed up! 13 questions left</div>
+          </div>
+          <div class="m-timer-counts">
+            <div class="m-count-box" style="background:#f0fdf4">
+              <div class="m-count-val" style="color:var(--green)">7</div>
+              <div class="m-count-lbl" style="color:var(--green)">Answered</div>
+            </div>
+            <div class="m-count-box" style="background:#fff5f5">
+              <div class="m-count-val" style="color:var(--red)">13</div>
+              <div class="m-count-lbl" style="color:var(--red)">Remaining</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="mockup" id="mockup-3">
+          <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px">✅ Instant Results</p>
+          <div class="m-graded-row"><span class="m-graded-q">48 + 37 = 85</span><span class="ans-ok">✅ +1</span></div>
+          <div class="m-graded-row"><span class="m-graded-q">7 × 9 = 64</span><span class="ans-no">❌ → 63</span></div>
+          <div class="m-graded-row"><span class="m-graded-q">125 − 48 = 77</span><span class="ans-ok">✅ +1</span></div>
+          <div class="m-graded-row"><span class="m-graded-q">15% of 80 = 12</span><span class="ans-ok">✅ +1</span></div>
+          <div class="m-score-bar">
+            <span class="m-score-lbl">🏆 Your Score</span>
+            <span class="m-score-val">17/20</span>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="mockup" id="mockup-4">
+          <p style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px">🧠 AI Performance Report</p>
+          <div class="m-ai-card">
+            <div class="m-ai-head">Personalised Insight <span class="ai-chip">AI</span></div>
+            <div class="m-ai-insight">You scored 17/20 — great speed! Your ×7 and ×8 tables slipped. Focus on Unit 2 tomorrow for the biggest improvement.</div>
+            <div class="m-prog-row">
+              <span class="m-prog-label">Mental Math</span>
+              <div class="m-prog-outer"><div class="m-prog-inner" style="width:90%;background:var(--green)"></div></div>
+              <span class="m-prog-score">18/20</span>
+            </div>
+            <div class="m-prog-row">
+              <span class="m-prog-label">Tables</span>
+              <div class="m-prog-outer"><div class="m-prog-inner" style="width:70%;background:var(--amber)"></div></div>
+              <span class="m-prog-score">14/20</span>
+            </div>
+            <div class="m-prog-row">
+              <span class="m-prog-label">Fractions</span>
+              <div class="m-prog-outer"><div class="m-prog-inner" style="width:85%;background:var(--blue)"></div></div>
+              <span class="m-prog-score">17/20</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKBOOK LIBRARY -->
+<section class="section wb-bg" id="workbooks">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">Workbook Library</div>
+      <h2 class="section-title">Two workbooks, one goal</h2>
+      <p class="section-sub">Speed and accuracy — the two things that decide exam performance. Use both for the biggest improvement.</p>
+    </div>
+    <div class="wb-grid">
+
+      <div class="wb-card reveal">
+        <div class="wb-head" style="background:linear-gradient(135deg,#1a56db,#7c3aed)">
+          <div class="wb-head-icon">⚡</div>
+          <div class="wb-head-title">Calculation Speed Booster</div>
+          <div class="wb-head-sub">Grades 6–10 · 5 Units · 110+ Questions</div>
+        </div>
+        <div class="wb-body">
+          <p class="wb-desc">Build lightning-fast mental maths. Timed drills across 5 structured units — mental arithmetic, multiplication tables, fractions, algebra, and a mixed challenge.</p>
+          <div class="wb-feats">
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#1a56db"></div>Auto-generated fresh questions every session</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#059669"></div>5-minute countdown drill per unit</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#7c3aed"></div>Personal best tracking per unit</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#d97706"></div>AI performance report after each session</div>
+          </div>
+          <a href="/login" class="wb-btn" style="background:linear-gradient(135deg,#1a56db,#7c3aed)">⚡ Start Free</a>
+        </div>
+      </div>
+
+      <div class="wb-card reveal">
+        <div class="wb-head" style="background:linear-gradient(135deg,#7c3aed,#1a56db)">
+          <div class="wb-head-icon">🔍</div>
+          <div class="wb-head-title">Mistake Correction Workbook</div>
+          <div class="wb-head-sub">Grades 6–10 · 5 Units · 75 Exercises</div>
+        </div>
+        <div class="wb-body">
+          <p class="wb-desc">Train your eye to catch errors before they cost marks. Step-by-step mistake analysis across fractions, integers, algebra, percentages, and a grand mixed challenge.</p>
+          <div class="wb-feats">
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#7c3aed"></div>4 exercise types: Find, Fix, Fill, Choose</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#dc2626"></div>75 structured exercises across 5 topics</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#059669"></div>Accuracy tracking by question type</div>
+            <div class="wb-feat"><div class="wb-feat-dot" style="background:#d97706"></div>AI error pattern analysis per session</div>
+          </div>
+          <a href="/login" class="wb-btn" style="background:linear-gradient(135deg,#7c3aed,#1a56db)">🔍 Start Free</a>
+        </div>
+      </div>
+
+      <div class="wb-card reveal">
+        <div class="wb-coming">
+          <div class="wb-coming-icon">🚀</div>
+          <div class="wb-coming-title">More Coming Soon</div>
+          <div class="wb-coming-sub">Word problems, board exam prep, and topic-specific drills are in development for early access students.</div>
+          <div style="margin-top:16px;display:inline-block;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:800;color:var(--muted)">Stay tuned ✨</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div style="max-width:500px">
+      <div class="section-tag">Why SpeedCalc Works</div>
+      <h2 class="section-title">Built for real improvement</h2>
+      <p class="section-sub">Every feature exists to make students faster, more accurate, and more confident — not just busier.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-emoji">♾️</div>
+        <div class="feat-title">Unlimited Practice</div>
+        <div class="feat-desc">Fresh questions generated every session. No student ever practises the same set twice, so there's no memorising answers — only real understanding.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-emoji">⏱</div>
+        <div class="feat-title">Train Like Real Exams</div>
+        <div class="feat-desc">Built-in countdown timers with colour-coded urgency. Students learn to think fast under pressure — exactly what board exams demand.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-emoji">✅</div>
+        <div class="feat-title">Zero Marking Effort</div>
+        <div class="feat-desc">Submit and see results instantly. Every answer auto-checked — correct in green, wrong in red with the right answer shown. Parents never need to check a thing.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-emoji">📊</div>
+        <div class="feat-title">Track Every Session</div>
+        <div class="feat-desc">Personal best scores, session history, and improvement trends all tracked automatically. Progress is always visible at a glance on the dashboard.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-emoji">🧠</div>
+        <div class="feat-title">Know What to Practise Next</div>
+        <div class="feat-desc">AI identifies weak areas from each session and tells students exactly where to focus. No guesswork, no wasted time — each session has a clear purpose.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-emoji">🔥</div>
+        <div class="feat-title">Daily Habits That Stick</div>
+        <div class="feat-desc">Streak tracking, daily drills, and personal records keep students coming back. 15 minutes a day builds the habits that drive year-long improvement.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARENT SECTION -->
+<section class="section parent-bg">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">For Parents</div>
+      <h2 class="section-title">Why parents choose SpeedCalc</h2>
+      <p class="section-sub">Designed so parents never have to sit and check answers — everything is automated.</p>
+    </div>
+    <div class="parent-grid">
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#d1fae5">✅</div>
+        <div class="parent-title">No Answer Checking Required</div>
+        <div class="parent-desc">Every answer is graded automatically. You don't need to know the answers to support your child's daily practice.</div>
+      </div>
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#dbeafe">📈</div>
+        <div class="parent-title">See Improvement Clearly</div>
+        <div class="parent-desc">The dashboard shows how scores change session by session. You'll see whether daily practice is working — in numbers, not guesses.</div>
+      </div>
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#fef3c7">🔥</div>
+        <div class="parent-title">Builds a Daily Habit</div>
+        <div class="parent-desc">15 minutes daily is all it takes. Streak tracking keeps students accountable without you having to chase them every evening.</div>
+      </div>
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#f5f3ff">🎯</div>
+        <div class="parent-title">Targets Weak Spots</div>
+        <div class="parent-desc">AI tells students exactly which topics to work on next. No more unfocused revision — every session has a direction and a purpose.</div>
+      </div>
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#fff5f5">💪</div>
+        <div class="parent-title">Builds Real Confidence</div>
+        <div class="parent-desc">Watching personal best scores improve week after week gives students genuine belief in their abilities — not just short-term test prep.</div>
+      </div>
+      <div class="parent-card reveal">
+        <div class="parent-icon" style="background:#f0fdf4">🏫</div>
+        <div class="parent-title">Aligned With School Topics</div>
+        <div class="parent-desc">All content is built around the Grades 6–10 curriculum — mental maths, fractions, algebra, percentages, integers, and more.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="section comp-bg">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">SpeedCalc vs Traditional</div>
+      <h2 class="section-title">This isn't just a workbook</h2>
+      <p class="section-sub">See why interactive AI-powered practice beats a static PDF every single time.</p>
+    </div>
+    <table class="comp-table reveal">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Traditional Workbook</th>
+          <th>⚡ SpeedCalc</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feat-col">Questions</td>
+          <td><span class="comp-no">✕</span> Same every time</td>
+          <td><span class="comp-yes">✓</span> Fresh every session</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Answer Checking</td>
+          <td><span class="comp-no">✕</span> Manual by parent/teacher</td>
+          <td><span class="comp-yes">✓</span> Instant auto-grading</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Format</td>
+          <td><span class="comp-no">✕</span> Paper or static PDF</td>
+          <td><span class="comp-yes">✓</span> Interactive and digital</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Analytics</td>
+          <td><span class="comp-no">✕</span> None</td>
+          <td><span class="comp-yes">✓</span> AI-powered insights</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Progress Tracking</td>
+          <td><span class="comp-no">✕</span> Not available</td>
+          <td><span class="comp-yes">✓</span> Full session dashboard</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Weak Area Analysis</td>
+          <td><span class="comp-no">✕</span> Not available</td>
+          <td><span class="comp-yes">✓</span> Automatic every session</td>
+        </tr>
+        <tr>
+          <td class="feat-col">Cost</td>
+          <td>₹200–600 per book</td>
+          <td><span class="comp-yes">✓</span> Free during early access</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="container">
+    <div style="max-width:560px">
+      <div class="section-tag">Early Access Students</div>
+      <h2 class="section-title">First impressions from students</h2>
+      <p class="section-sub">Placeholder reviews for launch — will be replaced with real verified feedback from our first 20+ beta students after testing.</p>
+    </div>
+    <div class="testi-grid" style="margin-top:32px">
+      <div class="testi-card reveal">
+        <div class="testi-badge">⭐ Early Access Student</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I always struggled with fractions. Two weeks of daily sessions and I'm getting most of them right. The AI report told me which type I was getting wrong — that's never happened with a workbook."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#1a56db,#7c3aed)">R</div>
+          <div><div class="testi-name">Riya S.</div><div class="testi-role">Grade 8 · Ahmedabad</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-badge">⭐ Early Access Parent</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"My son sits down and does this without being told. The streak tracker keeps him going and I can see his scores improving on the dashboard. I don't have to check a single answer myself."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">M</div>
+          <div><div class="testi-name">Meena K.</div><div class="testi-role">Parent · Surat</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-badge">⭐ Early Access Student</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"The Mistake Correction Workbook changed how I check my work. I spotted the exact error pattern the AI flagged — in my actual school test. I caught it before submitting and fixed it."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#dc2626,#f59e0b)">A</div>
+          <div><div class="testi-name">Arjun P.</div><div class="testi-role">Grade 9 · Vadodara</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-bg" id="pricing">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Simple, honest pricing</h2>
+      <p class="section-sub">We are in early access. That means completely free — for now.</p>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pricing-top-badge">🎉 Early Access</div>
+      <div class="pricing-main">Free</div>
+      <div class="pricing-sub">For the first 1,000 students. No credit card required.</div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-feats">
+        <div class="p-feat"><div class="p-feat-tick">✓</div>Both workbooks — Speed Booster and Mistake Correction</div>
+        <div class="p-feat"><div class="p-feat-tick">✓</div>Unlimited sessions with fresh auto-generated questions</div>
+        <div class="p-feat"><div class="p-feat-tick">✓</div>AI-powered performance reports every session</div>
+        <div class="p-feat"><div class="p-feat-tick">✓</div>Full progress dashboard and streak tracking</div>
+        <div class="p-feat"><div class="p-feat-tick">✓</div>Session history and personal best scores</div>
+        <div class="p-feat"><div class="p-feat-tick">✓</div>All future workbooks included during early access</div>
+      </div>
+      <a href="/login" class="btn-primary" style="display:block;text-align:center;border-radius:12px">🚀 Claim Your Free Access</a>
+      <p class="pricing-note">No credit card. No catch. Just daily maths practice that actually works.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-bg" id="faq">
+  <div class="container">
+    <div class="center" style="max-width:520px;margin:0 auto">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Questions you might have</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is SpeedCalc really free?<i class="faq-icon">+</i></button>
+        <div class="faq-a">Yes — completely free for the first 1,000 students. No credit card, no hidden fees. We are in early access and want real students using the platform before we finalise pricing.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What grades is SpeedCalc for?<i class="faq-icon">+</i></button>
+        <div class="faq-a">Grades 6–10. Questions are calibrated to each student's grade level. Students select their grade when signing up, and the platform adjusts difficulty accordingly.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How long does a session take?<i class="faq-icon">+</i></button>
+        <div class="faq-a">10–15 minutes per workbook session. Each unit has a short warm-up and a 5-minute timed drill. Designed to fit into any daily schedule — before school, after school, or before bed.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do I need to install anything?<i class="faq-icon">+</i></button>
+        <div class="faq-a">No. SpeedCalc runs entirely in your browser. Sign up, log in, and start practising — on any device. No downloads, no apps required.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What is the difference between the two workbooks?<i class="faq-icon">+</i></button>
+        <div class="faq-a">The Speed Booster focuses on calculation speed — how fast can you answer correctly under a timer? The Mistake Correction Workbook focuses on accuracy — can you spot and fix errors in step-by-step working? Together they cover both speed and precision, which is what exams actually test.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does the AI analysis work?<i class="faq-icon">+</i></button>
+        <div class="faq-a">After each session, your score data is sent to an AI that identifies your performance patterns — which topics you are strongest in, where errors appeared, and what to focus on next. The analysis is based on your actual results, not generic advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="cta-wrap">
+  <div class="cta-box">
+    <h2 class="cta-title">Start practising smarter today.</h2>
+    <p class="cta-sub">Free for the first 1,000 students. No credit card. Just better maths.</p>
+    <div class="cta-btns">
+      <a class="btn-cta-white" href="/login">🚀 Claim Free Access</a>
+      <a class="btn-cta-ghost" href="/login">Already have an account? Login →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⚡ SpeedCalc</div>
+  <p>AI-Powered Maths Practice Platform · Grades 6–10</p>
+  <p style="margin-top:8px;font-size:12px;opacity:.6">Speed Booster · Mistake Correction · AI Reports · Progress Dashboard · Daily Streaks</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+// ══════════════════════════════
+// STORAGE
+
+
+// ─────────────────────────────────────────────────────────
+// CONFIG — update API_BASE to your Railway URL when deployed
+// ─────────────────────────────────────────────────────────
+const API_BASE = '';  // same-origin now that Flask serves the frontend too
+const TOKEN_KEY = 'csb_token';
+
+// ─────────────────────────────────────────────────────────
+// API HELPERS
+// ─────────────────────────────────────────────────────────
+function getToken() { return localStorage.getItem(TOKEN_KEY); }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+async function apiGet(path) {
+  try {
+    const res = await fetch(API_BASE + path, {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    if (res.status === 401) { clearToken(); window.location.href = '/login'; return null; }
+    return await res.json();
+  } catch (err) {
+    showToast('Connection error. Please check your internet.');
+    return null;
+  }
+}
+
+async function apiPost(path, body = {}) {
+  try {
+    const res = await fetch(API_BASE + path, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+      body:    JSON.stringify(body)
+    });
+    if (res.status === 401) { clearToken(); window.location.href = '/login'; return null; }
+    return await res.json();
+  } catch (err) {
+    showToast('Connection error. Please check your internet.');
+    return null;
+  }
+}
+
+// Current logged-in user — populated from API on load
+let currentUser = null;
+
+// ══════════════════════════════
+// AUTH
+// ══════════════════════════════
+function switchTab(tab){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('form-login').style.display = tab==='login' ? '' : 'none';
+  document.getElementById('form-signup').style.display = tab==='signup' ? '' : 'none';
+  hideError();
+}
+function showError(msg){ const e=document.getElementById('auth-error'); e.textContent=msg; e.style.display='block'; }
+function hideError(){ document.getElementById('auth-error').style.display='none'; }
+
+async function doSignup(){
+  const fname=document.getElementById('su-fname').value.trim();
+  const lname=document.getElementById('su-lname').value.trim();
+  const grade=document.getElementById('su-grade').value;
+  const age=document.getElementById('su-age').value.trim();
+  const school=document.getElementById('su-school').value.trim();
+  const city=document.getElementById('su-city').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const password=document.getElementById('su-password').value;
+  const confirm=document.getElementById('su-confirm').value;
+  if(!fname||!lname||!grade||!age||!school||!city||!email||!password) return showError('Please fill in all fields.');
+  if(password!==confirm) return showError('Passwords do not match.');
+  if(password.length<6) return showError('Password must be at least 6 characters.');
+  hideError();
+  try {
+    const res = await fetch(API_BASE + '/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fname, lname, grade, age, school, city, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showError(data.error || 'Sign up failed.');
+    setToken(data.token);
+    const user = await apiGet('/api/user');
+    if (user) loadWorkbook(user);
+  } catch (err) {
+    showError('Could not connect to server. Please try again.');
+  }
+}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const password=document.getElementById('login-password').value;
+  if(!email||!password) return showError('Please enter email and password.');
+  hideError();
+  try {
+    const res = await fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showError(data.error || 'Login failed.');
+    setToken(data.token);
+    const user = await apiGet('/api/user');
+    if (user) loadWorkbook(user);
+  } catch (err) {
+    showError('Could not connect to server. Please try again.');
+  }
+}
+
+function doLogout(){
+  clearToken();
+  window.location.href = '/login';
+}
+
+// ══════════════════════════════
+// LOAD WORKBOOK
+// ══════════════════════════════
+function loadWorkbook(user){
+  currentUser = user;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-workbook').classList.add('active');
+  document.getElementById('tb-avatar').textContent   = user.fname[0].toUpperCase();
+  document.getElementById('tb-name').textContent     = user.fname+' '+user.lname;
+  document.getElementById('tb-grade').textContent    = 'Grade '+user.grade+' · '+user.city;
+  document.getElementById('cover-grade').textContent = 'Grade '+user.grade;
+  document.getElementById('tb-streak').textContent   = '🔥 '+(user.streak||1)+' day streak';
+  updateProgress(user);
+  initTipsAndHints();
+  restoreSavedMCState();
+  document.querySelectorAll('.fill-input').forEach(inp => {
+    inp.removeEventListener('input', saveMCState);
+    inp.addEventListener('input', saveMCState);
+  });
+}
+
+function updateProgress(u){
+  const best = u.mcBestScores || [0,0,0,0,0];
+  best.forEach((s,i)=>{
+    const pct   = Math.round((s/15)*100);
+    const bar   = document.getElementById('pb'+(i+1));
+    const score = document.getElementById('ps'+(i+1));
+    if(bar)   bar.style.width   = pct+'%';
+    if(score) score.textContent = s+'/15';
+  });
+}
+
+// ══════════════════════════════
+// DATE & STORAGE HELPERS
+// ══════════════════════════════
+function getTodayDateIST() {
+  const d = new Date();
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const istDate = new Date(utc + (3600000 * 5.5));
+  const year = istDate.getFullYear();
+  const month = String(istDate.getMonth() + 1).padStart(2, '0');
+  const day = String(istDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getMCStorageKey() {
+  if (!currentUser) return null;
+  return `mc_state_${currentUser.id}_${getTodayDateIST()}`;
+}
+
+// ══════════════════════════════
+// ANSWER NORMALIZATION & VALIDATION
+// ══════════════════════════════
+function normalizeAlgebraic(s) {
+  if (s === undefined || s === null) return '';
+  return s.toString().toLowerCase().trim()
+    .replace(/[\u2212\u2013\u2014]/g, '-')
+    .replace(/[\u00d7\u22c5]/g, '*')
+    .replace(/[\u00f7]/g, '/')
+    .replace(/\s+/g, '')
+    .replace(/₹/g, '')
+    .replace(/rupees?/g, '')
+    .replace(/^\+/, '');
+}
+
+function parseNumericOrFraction(s) {
+  if (s === undefined || s === null) return null;
+  const str = s.toString().trim()
+    .replace(/[\u2212\u2013\u2014]/g, '-')
+    .replace(/\s+/g, '')
+    .replace(/₹/g, '')
+    .replace(/rupees?/g, '')
+    .replace(/^[+]/, '');
+
+  // Fraction: e.g. "1/4", "-5/8", "100/120"
+  const fracMatch = str.match(/^([+-]?\d+(?:\.\d+)?)\/([+-]?\d+(?:\.\d+)?)$/);
+  if (fracMatch) {
+    const num = parseFloat(fracMatch[1]);
+    const den = parseFloat(fracMatch[2]);
+    if (den === 0 || isNaN(num) || isNaN(den)) return null;
+    return num / den;
+  }
+
+  // Pure decimal or integer: e.g. "25", "-12", "0.25"
+  const numMatch = str.match(/^([+-]?\d+(?:\.\d+)?)$/);
+  if (numMatch) {
+    const val = parseFloat(numMatch[1]);
+    if (isNaN(val)) return null;
+    return val;
+  }
+
+  return null;
+}
+
+function isCorrect(userVal, accepted) {
+  if (userVal === undefined || userVal === null) return false;
+  const uRaw = userVal.toString().trim();
+  if (!uRaw) return false;
+
+  const uNorm = normalizeAlgebraic(uRaw);
+  const acceptedList = accepted.split(',').map(a => normalizeAlgebraic(a));
+
+  // 1. Direct normalized match (exact strings, words, algebraic equations/expressions, exact numbers)
+  if (acceptedList.includes(uNorm)) return true;
+
+  // 2. Also check if either has trailing %
+  for (const acc of acceptedList) {
+    if (uNorm.replace(/%$/, '') === acc.replace(/%$/, '')) {
+      const n1 = parseNumericOrFraction(uNorm.replace(/%$/, ''));
+      const n2 = parseNumericOrFraction(acc.replace(/%$/, ''));
+      if (n1 !== null && n2 !== null && Math.abs(n1 - n2) < 0.005) return true;
+    }
+  }
+
+  // 3. If accepted or user value has variables (like letters [a-z]) or '=', DO NOT do simplistic numeric comparison!
+  const hasAlgebraicChar = acceptedList.some(acc => /[a-z=]/.test(acc)) || /[a-z=]/.test(uNorm);
+  if (hasAlgebraicChar) {
+    return false;
+  }
+
+  // 4. Numeric & fraction equivalence comparison (e.g. 2/4 == 1/2, 0.5 == 1/2, 4.33 ~= 13/3, -3.48 ~= -80/23)
+  const uNum = parseNumericOrFraction(uRaw);
+  if (uNum !== null) {
+    for (const acc of acceptedList) {
+      const aNum = parseNumericOrFraction(acc);
+      if (aNum !== null) {
+        if (Math.abs(uNum - aNum) < 0.005) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// ══════════════════════════════
+// EXERCISE STATE TRACKING & CACHING
+// ══════════════════════════════
+const exState = {};
+let mcSubmittedUnits = {};
+
+function getExState(id){
+  if(!exState[id]) exState[id] = { selected: null, checked: false, correct: false };
+  return exState[id];
+}
+
+function saveMCState() {
+  const key = getMCStorageKey();
+  if (!key) return;
+  const inputs = {};
+  document.querySelectorAll('.fill-input').forEach(inp => {
+    if (inp.id && inp.value) inputs[inp.id] = inp.value;
+  });
+  const state = {
+    date: getTodayDateIST(),
+    exState,
+    inputs,
+    submittedUnits: mcSubmittedUnits || {}
+  };
+  try {
+    localStorage.setItem(key, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Could not save MC state', e);
+  }
+}
+
+function restoreSavedMCState() {
+  const key = getMCStorageKey();
+  if (!key) return;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (!state || state.date !== getTodayDateIST()) return;
+
+    if (state.inputs) {
+      for (const [id, val] of Object.entries(state.inputs)) {
+        const inp = document.getElementById(id);
+        if (inp) inp.value = val;
+      }
+    }
+
+    if (state.exState) {
+      for (const [exId, s] of Object.entries(state.exState)) {
+        exState[exId] = s;
+        const card = document.getElementById(exId);
+        if (!card) continue;
+
+        if (s.selected !== null) {
+          const stepBtn = card.querySelectorAll('.step-btn')[s.selected];
+          if (stepBtn) stepBtn.classList.add('selected');
+
+          card.querySelectorAll('.tf-btn').forEach(btn => {
+            if (btn.dataset.val === s.selected || (btn.textContent.includes('True') && s.selected === 'true') || (btn.textContent.includes('False') && s.selected === 'false')) {
+              btn.classList.add('selected');
+            }
+          });
+
+          card.querySelectorAll('.radio-btn').forEach(btn => {
+            if (btn.dataset.val === s.selected) btn.classList.add('selected');
+          });
+        }
+
+        if (s.checked) {
+          const checkBtn = card.querySelector('.check-btn');
+          if (checkBtn) checkBtn.disabled = true;
+          unlockHint(card);
+
+          card.querySelectorAll('.step-btn').forEach((btn, i) => {
+            btn.classList.add('locked');
+            if (btn.classList.contains('selected')) {
+              btn.classList.add(s.correct ? 'correct' : 'incorrect');
+            }
+          });
+
+          card.querySelectorAll('.tf-btn').forEach(btn => {
+            btn.classList.add('locked');
+            if (btn.classList.contains('selected')) {
+              btn.classList.add(s.correct ? 'correct' : 'incorrect');
+            }
+          });
+
+          card.querySelectorAll('.radio-btn').forEach(btn => {
+            btn.classList.add('locked');
+            if (btn.classList.contains('selected')) {
+              btn.classList.add(s.correct ? 'correct' : 'incorrect');
+            }
+          });
+
+          card.querySelectorAll('.fill-input').forEach(inp => {
+            inp.classList.add('locked');
+            inp.readOnly = true;
+            if (isCorrect(inp.value, inp.dataset.ans || '')) {
+              inp.classList.add('correct');
+            } else {
+              inp.classList.add('incorrect');
+            }
+          });
+
+          showResult(exId, s.correct ? 1 : 0, 1);
+        }
+      }
+    }
+
+    if (state.submittedUnits) {
+      mcSubmittedUnits = state.submittedUnits;
+      for (const [uStr, data] of Object.entries(mcSubmittedUnits)) {
+        const u = parseInt(uStr, 10);
+        const btn = document.getElementById('submit-u' + u);
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = `✅ Unit ${u} Submitted (${data.score}/${data.total})`;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Could not restore MC state', e);
+  }
+}
+
+// ══════════════════════════════
+// CHECK FUNCTIONS
+// ══════════════════════════════
+function checkFTM(exId, correctIdx){
+  const state = getExState(exId);
+  if(state.checked) return;
+  const card = document.getElementById(exId);
+  const stepBtns = card.querySelectorAll('.step-btn');
+  if(state.selected === null){ showToast('Please select a step first!'); return; }
+  state.checked = true;
+  state.correct = (state.selected === correctIdx);
+  stepBtns.forEach((btn,i)=>{
+    btn.classList.add('locked');
+    if(i === correctIdx) btn.classList.add('correct');
+    else if(i === state.selected && !state.correct) btn.classList.add('incorrect');
+  });
+  showResult(exId, state.correct ? 1 : 0, 1);
+  const checkBtn = card.querySelector('.check-btn');
+  if (checkBtn) checkBtn.disabled = true;
+  unlockHint(card);
+  saveMCState();
+}
+
+function checkTF(exId, correctAnswer){
+  const state = getExState(exId);
+  if(state.checked) return;
+  const card = document.getElementById(exId);
+  if(state.selected === null){ showToast('Please select True or False first!'); return; }
+  state.checked = true;
+  state.correct = (state.selected === correctAnswer);
+  card.querySelectorAll('.tf-btn').forEach(btn=>{
+    btn.classList.add('locked');
+    if(btn.dataset.val === correctAnswer) btn.classList.add('correct');
+    else if(btn.dataset.val === state.selected && !state.correct) btn.classList.add('incorrect');
+  });
+  showResult(exId, state.correct ? 1 : 0, 1);
+  const checkBtn = card.querySelector('.check-btn');
+  if (checkBtn) checkBtn.disabled = true;
+  unlockHint(card);
+  saveMCState();
+}
+
+function checkRadio(exId, correctAnswer){
+  const state = getExState(exId);
+  if(state.checked) return;
+  const card = document.getElementById(exId);
+  if(state.selected === null){ showToast('Please select an option first!'); return; }
+  state.checked = true;
+  state.correct = (state.selected === correctAnswer);
+  card.querySelectorAll('.radio-btn').forEach(btn=>{
+    btn.classList.add('locked');
+    if(btn.dataset.val === correctAnswer) btn.classList.add('correct');
+    else if(btn.dataset.val === state.selected && !state.correct) btn.classList.add('incorrect');
+  });
+  showResult(exId, state.correct ? 1 : 0, 1);
+  const checkBtn = card.querySelector('.check-btn');
+  if (checkBtn) checkBtn.disabled = true;
+  unlockHint(card);
+  saveMCState();
+}
+
+function checkFill(exId, inputIds){
+  const state = getExState(exId);
+  if(state.checked) return;
+  const card = document.getElementById(exId);
+  const inputs = inputIds.map(id=>document.getElementById(id)).filter(Boolean);
+  const total  = inputs.length;
+  let correct  = 0;
+  inputs.forEach(inp=>{
+    inp.classList.add('locked'); inp.readOnly = true;
+    if(isCorrect(inp.value, inp.dataset.ans||'')){ correct++; inp.classList.add('correct'); }
+    else { inp.classList.add('incorrect'); }
+  });
+  state.checked = true;
+  state.correct = (correct === total);
+  showResult(exId, correct, total);
+  const checkBtn = card.querySelector('.check-btn');
+  if (checkBtn) checkBtn.disabled = true;
+  unlockHint(card);
+  saveMCState();
+}
+
+function showResult(exId, correct, total){
+  const el = document.getElementById(exId+'-result');
+  if(!el) return;
+  const pct = (correct/total)*100;
+  let cls, msg;
+  if(pct===100){ cls='result-correct'; msg='✅ Perfect! '+correct+'/'+total+' correct.'; }
+  else if(pct>=50){ cls='result-partial'; msg='⚠️ '+correct+'/'+total+' correct — review the hint!'; }
+  else { cls='result-wrong'; msg='❌ '+correct+'/'+total+' correct — check the hint for guidance.'; }
+  el.innerHTML = '<div class="result-row '+cls+'">'+msg+'</div>';
+}
+
+// ══════════════════════════════
+// SELECTION HANDLERS
+// ══════════════════════════════
+function selectStep(btn, exId, idx){
+  if(getExState(exId).checked) return;
+  document.getElementById(exId).querySelectorAll('.step-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  getExState(exId).selected = idx;
+  saveMCState();
+}
+function selectTF(btn, exId, val){
+  if(getExState(exId).checked) return;
+  document.getElementById(exId).querySelectorAll('.tf-btn').forEach(b=>{ b.classList.remove('selected'); b.dataset.val=b.textContent.includes('True')?'true':'false'; });
+  btn.classList.add('selected'); btn.dataset.val=val; getExState(exId).selected=val;
+  saveMCState();
+}
+function selectRadio(btn, exId, val){
+  if(getExState(exId).checked) return;
+  document.getElementById(exId).querySelectorAll('.radio-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); btn.dataset.val=val; getExState(exId).selected=val;
+  saveMCState();
+}
+
+// ══════════════════════════════
+// HINT & TIP TOGGLES
+// ══════════════════════════════
+function unlockHint(card) {
+  const hintBtn = card.querySelector('.hint-btn');
+  if (hintBtn) {
+    hintBtn.disabled = false;
+    hintBtn.textContent = '💡 Show hint';
+    hintBtn.title = '';
+  }
+}
+
+function toggleHint(btn){
+  if (btn.disabled) return;
+  const box = btn.nextElementSibling;
+  if(box && box.classList.contains('hint-reveal')){
+    box.classList.toggle('visible');
+    btn.textContent = box.classList.contains('visible') ? 'Hide hint' : 'Show hint';
+  }
+}
+
+function toggleTip(btn) {
+  const tipBox = btn.nextElementSibling;
+  if (tipBox && tipBox.classList.contains('tip-box')) {
+    tipBox.classList.toggle('visible');
+    btn.textContent = tipBox.classList.contains('visible') ? '💡 Hide Tip' : '💡 Show Tip';
+  }
+}
+
+function initTipsAndHints() {
+  document.querySelectorAll('.hint-btn').forEach(btn => {
+    btn.disabled = true;
+    btn.textContent = '🔒 Hint (Check answer first)';
+    btn.title = 'Attempt and check your answer to unlock the hint';
+  });
+
+  document.querySelectorAll('.tip-box').forEach(tip => {
+    if (tip.previousElementSibling && tip.previousElementSibling.classList.contains('tip-toggle-btn')) {
+      return;
+    }
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tip-toggle-btn';
+    btn.textContent = '💡 Show Tip';
+    btn.onclick = function() { toggleTip(this); };
+    tip.parentNode.insertBefore(btn, tip);
+  });
+}
+
+// ══════════════════════════════
+// UNIT NAV
+// ══════════════════════════════
+function showUnit(idx){
+  document.querySelectorAll('.unit-page').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  const colors=['#1a56db','#059669','#dc2626','#d97706','#7c3aed'];
+  document.querySelectorAll('.unit-tab').forEach((t,i)=>{
+    if(i===idx){ t.classList.add('active'); t.style.background=colors[i]; t.style.color='white'; t.style.borderColor='transparent'; }
+    else { t.classList.remove('active'); t.style.background=''; t.style.color=''; t.style.borderColor=''; }
+  });
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════
+// SUBMIT UNIT & COMPLETION MODAL
+// ══════════════════════════════
+let isSubmittingMC = false;
+let lastCompletedMCUnit = null;
+
+async function submitUnit(unitNum){
+  if(!currentUser){ showToast('Not logged in.'); return; }
+  if(isSubmittingMC) return;
+
+  const btn = document.getElementById('submit-u' + unitNum);
+  if(btn && btn.disabled) return;
+
+  const prefix  = 'u'+unitNum+'q';
+  const typeMap = {
+    1:'findMistake',2:'tf',3:'fill',4:'radio',5:'fill',
+    6:'findMistake',7:'tf',8:'fill',9:'radio',10:'fill',
+    11:'findMistake',12:'tf',13:'radio',14:'fill',15:'fill'
+  };
+  const typeAttempted={}, typeCorrect={};
+  let total=0, correct=0;
+
+  for(let q=1; q<=15; q++){
+    const state=exState['u'+unitNum+'q'+q];
+    if(!state) continue;
+    total++; if(state.correct) correct++;
+    const t=typeMap[q];
+    typeAttempted[t]=(typeAttempted[t]||0)+1;
+    if(state.correct) typeCorrect[t]=(typeCorrect[t]||0)+1;
+  }
+
+  if(total<5){ showToast('Please attempt at least 5 exercises before submitting!'); return; }
+
+  isSubmittingMC = true;
+  if(btn) { btn.disabled=true; btn.textContent='Saving...'; }
+
+  const saved = await apiPost('/api/sessions/mc', {
+    unit:        unitNum,
+    score:       correct,
+    total:       Math.min(total,15),
+    typeStats:   typeAttempted,
+    typeCorrect: typeCorrect,
+    mood:        '-'
+  });
+
+  if(saved && !saved.error){
+    currentUser = saved;
+    updateProgress(saved);
+    if(btn) {
+      btn.disabled = true;
+      btn.textContent = `✅ Unit ${unitNum} Submitted (${correct}/${Math.min(total,15)})`;
+    }
+    mcSubmittedUnits[unitNum] = { score: correct, total: Math.min(total, 15) };
+    saveMCState();
+    showToast(`✅ Unit ${unitNum} saved! Score: ${correct}/${Math.min(total,15)}`);
+    showCompletionModal(unitNum, correct, Math.min(total, 15));
+  } else {
+    if(btn) {
+      btn.disabled=false;
+      btn.textContent=`Submit Unit ${unitNum} & Save Score`;
+    }
+    const errMsg = (saved && saved.error) ? `⚠️ ${saved.error}` : 'Could not save. Please check your connection and try again.';
+    showToast(errMsg);
+  }
+  isSubmittingMC = false;
+}
+
+function showCompletionModal(unit, score, total) {
+  lastCompletedMCUnit = unit;
+  const modal = document.getElementById('completion-modal');
+  if (!modal) return;
+  const emoji = document.getElementById('completion-emoji');
+  const title = document.getElementById('completion-title');
+  const subtitle = document.getElementById('completion-subtitle');
+  const badge = document.getElementById('completion-score-badge');
+  const nextBtn = document.getElementById('btn-next-unit');
+
+  if (emoji) emoji.textContent = unit === 5 ? '🏆' : '🎉';
+  if (title) title.textContent = unit === 5 ? 'Workbook Complete!' : `Unit ${unit} Complete!`;
+  if (subtitle) subtitle.textContent = unit === 5 ? 'All 5 units finished! Outstanding dedication.' : 'Your score has been saved to your profile.';
+  if (badge) badge.textContent = `Score: ${score} / ${total}`;
+
+  if (nextBtn) {
+    if (unit >= 5) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = 'block';
+      nextBtn.textContent = `Proceed to Unit ${unit + 1} →`;
+    }
+  }
+  modal.style.display = 'flex';
+}
+
+function closeCompletionModal() {
+  const modal = document.getElementById('completion-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function goToNextUnit() {
+  closeCompletionModal();
+  if (lastCompletedMCUnit && lastCompletedMCUnit < 5) {
+    showUnit(lastCompletedMCUnit);
+  }
+}
+
+// ══════════════════════════════
+// INIT — check token, load user from API
+// ══════════════════════════════
+window.addEventListener('load', async () => {
+  const token = getToken();
+  if(!token){ document.getElementById('screen-auth').classList.add('active'); return; }
+  const user = await apiGet('/api/user');
+  if(!user || user.error){
+    clearToken();
+    document.getElementById('screen-auth').classList.add('active');
+    return;
+  }
+  loadWorkbook(user);
+});
